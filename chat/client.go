@@ -15,7 +15,7 @@ type client struct {
 	// roomはこのクライアントが参加しているチャットルームです。
 	room *room
 	// userDataはユーザーに関する情報を保持します
-	userData map[string]interface{}
+	// userData map[string]interface{}
 }
 
 func (c *client) read() {
@@ -23,10 +23,8 @@ func (c *client) read() {
 		var msg *message
 		if err := c.socket.ReadJSON(&msg); err == nil {
 			msg.When = time.Now()
-			msg.Name = c.userData["name"].(string)
-			if avatarURL, ok := c.userData["avatar_url"]; ok {
-				msg.AvatarURL = avatarURL.(string)
-			}
+			// msg.Name = c.userData["name"].(string)
+			msg.Name = "test"
 			c.room.forward <- msg
 		} else {
 			break

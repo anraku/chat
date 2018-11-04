@@ -4,9 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/anraku/chat/trace"
 	"github.com/gorilla/websocket"
-	"github.com/oreilly-japan/go-programming-blueprints/chapter3/trace"
-	"github.com/stretchr/objx"
 )
 
 type room struct {
@@ -77,16 +76,16 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		log.Fatal("ServeHTTP:", err)
 		return
 	}
-	authCookie, err := req.Cookie("auth")
-	if err != nil {
-		log.Fatal("クッキーの取得に失敗しました:", err)
-		return
-	}
+	// authCookie, err := req.Cookie("auth")
+	// if err != nil {
+	// 	log.Fatal("クッキーの取得に失敗しました:", err)
+	// 	return
+	// }
 	client := &client{
-		socket:   socket,
-		send:     make(chan *message, messageBufferSize),
-		room:     r,
-		userData: objx.MustFromBase64(authCookie.Value),
+		socket: socket,
+		send:   make(chan *message, messageBufferSize),
+		room:   r,
+		// userData: objx.MustFromBase64(authCookie.Value),
 	}
 	r.join <- client
 	defer func() { r.leave <- client }()
