@@ -2,6 +2,8 @@ module github.com/anraku/chat
 
 require (
 	github.com/clbanning/x2j v0.0.0-20180326210544-5e605d46809c // indirect
+	github.com/gobuffalo/packd v0.0.0-20181103221656-16c4ed88b296 // indirect
+	github.com/gobuffalo/packr v1.19.0
 	github.com/gorilla/websocket v1.4.0
 	github.com/oreilly-japan/go-programming-blueprints v0.0.0-20170214022001-a99fad583e18
 	github.com/stretchr/codecs v0.0.0-20170403063245-04a5b1e1910d // indirect
