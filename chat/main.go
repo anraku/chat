@@ -1,15 +1,15 @@
 package main
 
 import (
-	"flag"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/anraku/chat/trace"
-	"github.com/gobuffalo/packr"
+	"google.golang.org/appengine"
 )
 
 // templは1つのテンプレートを表します
@@ -22,24 +22,28 @@ type templateHandler struct {
 // ServeHTTPはHTTPリクエストを処理します
 func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.once.Do(func() {
-		box := packr.NewBox("./templates")
-		html, err := box.FindString(t.filename)
-		if err != nil {
-			panic(err)
-		}
-		t.templ = template.New(t.filename)
-		t.templ, err = t.templ.Parse(html)
+		t.templ =
+			template.Must(template.ParseFiles(filepath.Join("templates",
+				t.filename)))
 	})
-	data := map[string]interface{}{
-		"Host": r.Host,
+	var uri string
+	if appengine.IsAppEngine() {
+		c := appengine.NewContext(r)
+		uri = "wss://" + appengine.DefaultVersionHostname(c)
+	} else {
+		uri = "ws://" + r.Host
 	}
-	t.templ.Execute(w, data)
+	data := map[string]interface{}{
+		// "Host": r.Host,
+		"Uri": uri,
+	}
+	if err := t.templ.Execute(w, data); err != nil {
+		panic(err)
+	}
+
 }
 
 func main() {
-	var addr = flag.String("addr", ":8080", "アプリケーションのアドレス")
-	flag.Parse() // フラグを解釈します
-
 	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
 	http.Handle("/chat", &templateHandler{filename: "chat.html"})
@@ -51,8 +55,11 @@ func main() {
 	// チャットルームを開始します
 	go r.run()
 	// Webサーバーを起動します
-	log.Println("Webサーバーを開始します。ポート: ", *addr)
-	if err := http.ListenAndServe(*addr, nil); err != nil {
-		log.Fatal("ListenAndServe:", err)
+	if appengine.IsAppEngine() {
+		appengine.Main()
+	} else {
+		if err := http.ListenAndServe(":8080", nil); err != nil {
+			log.Fatal("ListenAndServe:", err)
+		}
 	}
 }
