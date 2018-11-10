@@ -8,7 +8,10 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/anraku/chat/database"
+	"github.com/anraku/chat/repository"
 	"github.com/anraku/chat/trace"
+	"github.com/jinzhu/gorm"
 	"google.golang.org/appengine"
 )
 
@@ -34,23 +37,38 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		uri = "ws://" + r.Host
 	}
 	data := map[string]interface{}{
-		// "Host": r.Host,
 		"Uri": uri,
 	}
 	if err := t.templ.Execute(w, data); err != nil {
 		panic(err)
 	}
-
 }
 
+var DB *gorm.DB
+
 func main() {
+	db, err := database.Connect()
+	if err != nil {
+		panic(err)
+	}
+	DB = db
+	defer db.Close()
+
 	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
-	http.Handle("/chat", &templateHandler{filename: "chat.html"})
-	http.Handle("/avatars/",
-		http.StripPrefix("/avatars/",
-			http.FileServer(http.Dir("./avatars"))))
+	// static file path
+	http.HandleFunc("/vendor/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, r.URL.Path[1:])
+	})
+	http.HandleFunc("/css/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, r.URL.Path[1:])
+	})
+	http.HandleFunc("/avatars/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, r.URL.Path[1:])
+	})
 
+	http.HandleFunc("/index", Index)
+	http.Handle("/chat", &templateHandler{filename: "chat.html"})
 	http.Handle("/room", r)
 	// チャットルームを開始します
 	go r.run()
@@ -61,5 +79,20 @@ func main() {
 		if err := http.ListenAndServe(":8080", nil); err != nil {
 			log.Fatal("ListenAndServe:", err)
 		}
+	}
+}
+
+func Index(w http.ResponseWriter, r *http.Request) {
+	rooms, err := repository.NewRepository(DB).Fetch()
+	if err != nil {
+		panic(err)
+	}
+
+	m := map[string]interface{}{
+		"rooms": rooms,
+	}
+	t := template.Must(template.ParseFiles("templates/index.html"))
+	if err := t.ExecuteTemplate(w, "index.html", m); err != nil {
+		log.Fatal(err)
 	}
 }
