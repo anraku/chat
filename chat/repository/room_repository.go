@@ -26,3 +26,8 @@ func (r *RoomRepository) GetByID(id int) (result domain.Room, err error) {
 	err = r.DB.Debug().Table(table).Where("id = ?", id).First(&result).Error
 	return
 }
+
+func (r *RoomRepository) Create(room domain.Room) (err error) {
+	err = r.DB.Debug().Table(table).Create(&room).Error
+	return
+}

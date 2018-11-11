@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/anraku/chat/database"
+	"github.com/anraku/chat/domain"
 	"github.com/anraku/chat/repository"
 	"github.com/anraku/chat/trace"
 	"github.com/jinzhu/gorm"
@@ -70,6 +71,8 @@ func main() {
 	http.HandleFunc("/index", Index)
 	http.Handle("/chat", &templateHandler{filename: "chat.html"})
 	http.Handle("/room", r)
+	http.HandleFunc("/room/new", NewRoom)
+	http.HandleFunc("/room/create", CreateRoom)
 	// チャットルームを開始します
 	go r.run()
 	// Webサーバーを起動します
@@ -95,4 +98,28 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if err := t.ExecuteTemplate(w, "index.html", m); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func NewRoom(w http.ResponseWriter, r *http.Request) {
+	t := template.Must(template.ParseFiles("templates/new.html"))
+	if err := t.ExecuteTemplate(w, "new.html", nil); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func CreateRoom(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		panic(err)
+	}
+	v := r.Form
+	newRoom := domain.Room{
+		Name:        v.Get("name"),
+		Description: v.Get("description"),
+	}
+	err = repository.NewRepository(DB).Create(newRoom)
+	if err != nil {
+		log.Fatal(err)
+	}
+	http.Redirect(w, r, "/index", http.StatusFound)
 }
