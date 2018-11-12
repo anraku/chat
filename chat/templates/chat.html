@@ -44,7 +44,7 @@
     if (!window["WebSocket"]) {
       alert("エラー: WebSocketに対応していないブラウザです。")
     } else {
-      socket = new WebSocket("{{.Uri}}/room");
+      socket = new WebSocket("{{.Uri}}/room/{{.ID}}");
       socket.onclose = function() {
         alert("接続が終了しました。");
       }
