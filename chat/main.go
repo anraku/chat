@@ -74,18 +74,11 @@ func Index(c echo.Context) error {
 	m := map[string]interface{}{
 		"rooms": rooms,
 	}
-	// t := template.Must(template.ParseFiles("templates/index.html"))
-	// if err := t.ExecuteTemplate(w, "index.html", m); err != nil {
-	// 	log.Fatal(err)
-	// }
 	return c.Render(http.StatusOK, "index.html", m)
 }
 
-func NewRoom(w http.ResponseWriter, r *http.Request) {
-	t := template.Must(template.ParseFiles("templates/new.html"))
-	if err := t.ExecuteTemplate(w, "new.html", nil); err != nil {
-		log.Fatal(err)
-	}
+func NewRoom(c echo.Context) error {
+	return c.Render(http.StatusOK, "new.html", nil)
 }
 
 func CreateRoom(w http.ResponseWriter, r *http.Request) {
@@ -117,16 +110,6 @@ func main() {
 
 	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
-	// static file path
-	// http.HandleFunc("/vendor/", func(w http.ResponseWriter, r *http.Request) {
-	// 	http.ServeFile(w, r, r.URL.Path[1:])
-	// })
-	// http.HandleFunc("/css/", func(w http.ResponseWriter, r *http.Request) {
-	// 	http.ServeFile(w, r, r.URL.Path[1:])
-	// })
-	// http.HandleFunc("/avatars/", func(w http.ResponseWriter, r *http.Request) {
-	// 	http.ServeFile(w, r, r.URL.Path[1:])
-	// })
 
 	e := echo.New()
 	// setting static files
@@ -141,22 +124,17 @@ func main() {
 	e.Renderer = t
 
 	e.GET("/index", Index)
-	// http.HandleFunc("/index", Index)
 	http.Handle("/chat/:id", &templateHandler{filename: "chat.html"})
 	http.Handle("/room", r)
 	// http.Handle("/room", roomArray[])
-	http.HandleFunc("/room/new", NewRoom)
+	e.GET("/room/new", NewRoom)
 	http.HandleFunc("/room/create", CreateRoom)
 	// チャットルームを開始します
 	go r.run()
 	// Webサーバーを起動します
-	// if appengine.IsAppEngine() {
-	// 	appengine.Main()
-	// } else {
-	// 	if err := http.ListenAndServe(":8080", nil); err != nil {
-	// 		log.Fatal("ListenAndServe:", err)
-	// 	}
-	// }
-	// echoのサーバ起動
-	e.Logger.Fatal(e.Start(":8000"))
+	if appengine.IsAppEngine() {
+		appengine.Main()
+	} else {
+		e.Logger.Fatal(e.Start(":8080"))
+	}
 }
