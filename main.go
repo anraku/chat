@@ -6,8 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"sync"
 
 	"github.com/anraku/chat/database"
 	"github.com/anraku/chat/domain"
@@ -15,7 +13,7 @@ import (
 	"github.com/anraku/chat/trace"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
-	"google.golang.org/appengine"
+	"github.com/labstack/echo/middleware"
 )
 
 // templは1つのテンプレートを表します
@@ -25,44 +23,20 @@ type Template struct {
 	templates *template.Template
 }
 
-// /chatで使ってる
-type templateHandler struct {
-	once     sync.Once
-	filename string
-	templ    *template.Template
-}
-
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
 var roomArray = make([]room, 1000, 2000)
 
-// ServeHTTPはHTTPリクエストを処理します
-func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		panic(err)
-	}
-	t.once.Do(func() {
-		t.templ =
-			template.Must(template.ParseFiles(filepath.Join("templates",
-				t.filename)))
-	})
-	var uri string
-	if appengine.IsAppEngine() {
-		c := appengine.NewContext(r)
-		uri = "wss://" + appengine.DefaultVersionHostname(c)
-	} else {
-		uri = "ws://" + r.Host
-	}
+func Chat(c echo.Context) error {
+	req := c.Request()
+	uri := "ws://" + req.Host
 	data := map[string]interface{}{
-		"ID":  r.Form.Get("room_id"),
+		// "ID":  c.Param("id"),
 		"Uri": uri,
 	}
-	if err := t.templ.Execute(w, data); err != nil {
-		panic(err)
-	}
+	return c.Render(http.StatusOK, "chat.html", data)
 }
 
 func Index(c echo.Context) error {
@@ -101,6 +75,7 @@ func CreateRoom(w http.ResponseWriter, r *http.Request) {
 var DB *gorm.DB
 
 func main() {
+	// Setup db
 	db, err := database.Connect()
 	if err != nil {
 		panic(err)
@@ -112,6 +87,7 @@ func main() {
 	r.tracer = trace.New(os.Stdout)
 
 	e := echo.New()
+	e.Use(middleware.Logger())
 	// setting static files
 	e.Static("/vendor", "vendor")
 	e.Static("/css", "css")
@@ -123,18 +99,15 @@ func main() {
 	}
 	e.Renderer = t
 
+	// Routing
+	e.GET("/", Index)
 	e.GET("/index", Index)
-	http.Handle("/chat/:id", &templateHandler{filename: "chat.html"})
+	e.GET("/chat/:id", Chat)
+	e.GET("/room/new", NewRoom)
 	http.Handle("/room", r)
 	// http.Handle("/room", roomArray[])
-	e.GET("/room/new", NewRoom)
 	http.HandleFunc("/room/create", CreateRoom)
 	// チャットルームを開始します
 	go r.run()
-	// Webサーバーを起動します
-	if appengine.IsAppEngine() {
-		appengine.Main()
-	} else {
-		e.Logger.Fatal(e.Start(":8080"))
-	}
+	e.Logger.Fatal(e.Start(":8080"))
 }

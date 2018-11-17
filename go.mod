@@ -1,6 +1,7 @@
 module github.com/anraku/chat
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
 	github.com/gobuffalo/packr v1.19.0
 	github.com/gorilla/websocket v1.4.0
