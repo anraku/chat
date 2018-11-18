@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/anraku/chat/trace"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
@@ -75,21 +78,31 @@ var (
 
 // Chat is Handler with WebSocket in chat room
 func Chat(c echo.Context) error {
+	roomID := c.Param("id")
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err
 	}
 	defer ws.Close()
-	for {
-		client := &client{
-			socket: ws,
-			send:   make(chan *message, messageBufferSize),
-			room:   r,
-			// userData: objx.MustFromBase64(authCookie.Value),
-		}
-		r.join <- client
-		defer func() { r.leave <- client }()
-		go client.write()
-		client.read()
+	var room *room
+	if _, ok := rooms[roomID]; ok {
+		room = rooms[roomID]
+	} else {
+		room = newRoom()
+		room.tracer = trace.New(os.Stdout)
+		rooms[roomID] = room
+		go room.run()
 	}
+	client := &client{
+		socket: ws,
+		send:   make(chan *message, messageBufferSize),
+		room:   room,
+		// userData: objx.MustFromBase64(authCookie.Value),
+	}
+	fmt.Printf("%#v\n", rooms)
+	room.join <- client
+	defer func() { room.leave <- client }()
+	go client.write()
+	client.read()
+	return nil
 }

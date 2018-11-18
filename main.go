@@ -5,12 +5,10 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/anraku/chat/database"
 	"github.com/anraku/chat/domain"
 	"github.com/anraku/chat/repository"
-	"github.com/anraku/chat/trace"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -28,14 +26,12 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-var roomArray = make([]room, 1000, 2000)
-
 // Room render chat window
 func Room(c echo.Context) error {
 	req := c.Request()
 	uri := "ws://" + req.Host
 	data := map[string]interface{}{
-		// "ID":  c.Param("id"),
+		"ID":  c.Param("id"),
 		"Uri": uri,
 	}
 	return c.Render(http.StatusOK, "chat.html", data)
@@ -75,7 +71,9 @@ func CreateRoom(c echo.Context) error {
 
 // DB is database connection
 var DB *gorm.DB
-var r *room
+
+// var r *room
+var rooms = make(map[string]*room, 1000)
 
 func main() {
 	// Setup db
@@ -85,9 +83,6 @@ func main() {
 	}
 	DB = db
 	defer db.Close()
-
-	r = newRoom()
-	r.tracer = trace.New(os.Stdout)
 
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -106,11 +101,9 @@ func main() {
 	e.GET("/", Index)
 	e.GET("/index", Index)
 	e.GET("/chat/:id", Room)
-	e.GET("/room", Chat)
+	e.GET("/room/:id", Chat)
 	e.GET("/room/new", NewRoom)
 	e.POST("/room/create", CreateRoom)
-	// http.Handle("/room", roomArray[])
 	// チャットルームを開始します
-	go r.run()
 	e.Logger.Fatal(e.Start(":8080"))
 }
