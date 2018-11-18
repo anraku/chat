@@ -55,21 +55,17 @@ func NewRoom(c echo.Context) error {
 	return c.Render(http.StatusOK, "new.html", nil)
 }
 
-func CreateRoom(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		panic(err)
-	}
-	v := r.Form
+func CreateRoom(c echo.Context) error {
 	newRoom := domain.Room{
-		Name:        v.Get("name"),
-		Description: v.Get("description"),
+		Name:        c.FormValue("name"),
+		Description: c.FormValue("description"),
 	}
-	err = repository.NewRepository(DB).Create(newRoom)
+	err := repository.NewRepository(DB).Create(newRoom)
 	if err != nil {
 		log.Fatal(err)
+		panic(err)
 	}
-	http.Redirect(w, r, "/index", http.StatusFound)
+	return c.Redirect(http.StatusMovedPermanently, "/index")
 }
 
 var DB *gorm.DB
@@ -104,9 +100,9 @@ func main() {
 	e.GET("/index", Index)
 	e.GET("/chat/:id", Chat)
 	e.GET("/room/new", NewRoom)
+	e.POST("/room/create", CreateRoom)
 	http.Handle("/room", r)
 	// http.Handle("/room", roomArray[])
-	http.HandleFunc("/room/create", CreateRoom)
 	// チャットルームを開始します
 	go r.run()
 	e.Logger.Fatal(e.Start(":8080"))
