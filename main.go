@@ -29,7 +29,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 
 var roomArray = make([]room, 1000, 2000)
 
-func Chat(c echo.Context) error {
+func Room(c echo.Context) error {
 	req := c.Request()
 	uri := "ws://" + req.Host
 	data := map[string]interface{}{
@@ -69,6 +69,7 @@ func CreateRoom(c echo.Context) error {
 }
 
 var DB *gorm.DB
+var r *room
 
 func main() {
 	// Setup db
@@ -79,7 +80,7 @@ func main() {
 	DB = db
 	defer db.Close()
 
-	r := newRoom()
+	r = newRoom()
 	r.tracer = trace.New(os.Stdout)
 
 	e := echo.New()
@@ -98,10 +99,10 @@ func main() {
 	// Routing
 	e.GET("/", Index)
 	e.GET("/index", Index)
-	e.GET("/chat/:id", Chat)
+	e.GET("/chat/:id", Room)
+	e.GET("/room", Chat)
 	e.GET("/room/new", NewRoom)
 	e.POST("/room/create", CreateRoom)
-	http.Handle("/room", r)
 	// http.Handle("/room", roomArray[])
 	// チャットルームを開始します
 	go r.run()

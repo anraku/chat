@@ -1,11 +1,9 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/anraku/chat/trace"
 	"github.com/gorilla/websocket"
+	"github.com/labstack/echo"
 )
 
 type room struct {
@@ -68,27 +66,29 @@ const (
 	messageBufferSize = 256
 )
 
-var upgrader = &websocket.Upgrader{ReadBufferSize: socketBufferSize, WriteBufferSize: socketBufferSize}
+var (
+	upgrader = websocket.Upgrader{
+		ReadBufferSize:  socketBufferSize,
+		WriteBufferSize: messageBufferSize,
+	}
+)
 
-func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	socket, err := upgrader.Upgrade(w, req, nil)
+func Chat(c echo.Context) error {
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
-		log.Fatal("ServeHTTP:", err)
-		return
+		return err
 	}
-	// authCookie, err := req.Cookie("auth")
-	// if err != nil {
-	// 	log.Fatal("クッキーの取得に失敗しました:", err)
-	// 	return
-	// }
-	client := &client{
-		socket: socket,
-		send:   make(chan *message, messageBufferSize),
-		room:   r,
-		// userData: objx.MustFromBase64(authCookie.Value),
+	defer ws.Close()
+	for {
+		client := &client{
+			socket: ws,
+			send:   make(chan *message, messageBufferSize),
+			room:   r,
+			// userData: objx.MustFromBase64(authCookie.Value),
+		}
+		r.join <- client
+		defer func() { r.leave <- client }()
+		go client.write()
+		client.read()
 	}
-	r.join <- client
-	defer func() { r.leave <- client }()
-	go client.write()
-	client.read()
 }
