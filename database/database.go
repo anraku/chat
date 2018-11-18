@@ -7,11 +7,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-// type User struct {
-// 	ID   int    `gorm:"column:'id'"`
-// 	Name string `gorm:"column:'name'"`
-// }
-
 func Connect() (*gorm.DB, error) {
 	user := os.Getenv("DB_USER")
 	pass := os.Getenv("DB_PASS")

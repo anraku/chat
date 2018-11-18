@@ -16,19 +16,21 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
-// templは1つのテンプレートを表します
+// Template used for creating HTML
 type Template struct {
 	// once     sync.Once
 	// filename string
 	templates *template.Template
 }
 
+// Render create HTML with template file
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
 var roomArray = make([]room, 1000, 2000)
 
+// Room render chat window
 func Room(c echo.Context) error {
 	req := c.Request()
 	uri := "ws://" + req.Host
@@ -39,6 +41,7 @@ func Room(c echo.Context) error {
 	return c.Render(http.StatusOK, "chat.html", data)
 }
 
+// Index render list of chat room
 func Index(c echo.Context) error {
 	rooms, err := repository.NewRepository(DB).Fetch()
 	if err != nil {
@@ -51,10 +54,12 @@ func Index(c echo.Context) error {
 	return c.Render(http.StatusOK, "index.html", m)
 }
 
+// NewRoom render window to create new chat room
 func NewRoom(c echo.Context) error {
 	return c.Render(http.StatusOK, "new.html", nil)
 }
 
+// CreateRoom create new room
 func CreateRoom(c echo.Context) error {
 	newRoom := domain.Room{
 		Name:        c.FormValue("name"),
@@ -68,6 +73,7 @@ func CreateRoom(c echo.Context) error {
 	return c.Redirect(http.StatusMovedPermanently, "/index")
 }
 
+// DB is database connection
 var DB *gorm.DB
 var r *room
 

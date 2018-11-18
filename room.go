@@ -73,6 +73,7 @@ var (
 	}
 )
 
+// Chat is Handler with WebSocket in chat room
 func Chat(c echo.Context) error {
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
