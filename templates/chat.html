@@ -52,7 +52,7 @@
         var msg = JSON.parse(e.data);
         messages.append(
           $("<li>").append(
-            $("<img>").attr("title", msg.Name).css({
+            $("<img>").attr("title", msg.Message).css({
               width:50,
               verticalAlign:"middle"
             }).attr("src", "/avatars/gopher.png"),

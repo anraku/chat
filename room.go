@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/anraku/chat/domain"
 	"github.com/anraku/chat/trace"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
@@ -11,7 +12,7 @@ import (
 
 type room struct {
 	// forwardは他のクライアントに転送するためのメッセージを保持するチャネルです。
-	forward chan *message
+	forward chan *domain.Message
 	// joinはチャットルームに参加しようとしているクライアントのためのチャネルです。
 	join chan *client
 	// leaveはチャットルームから退室しようとしているクライアントのためのチャネルです
@@ -25,7 +26,7 @@ type room struct {
 // newRoomはすぐに利用できるチャットルームを生成して返します。
 func newRoom() *room {
 	return &room{
-		forward: make(chan *message),
+		forward: make(chan *domain.Message),
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
@@ -95,7 +96,7 @@ func Chat(c echo.Context) error {
 	}
 	client := &client{
 		socket: ws,
-		send:   make(chan *message, messageBufferSize),
+		send:   make(chan *domain.Message, messageBufferSize),
 		room:   room,
 		// userData: objx.MustFromBase64(authCookie.Value),
 	}

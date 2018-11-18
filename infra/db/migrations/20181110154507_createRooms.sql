@@ -3,8 +3,11 @@
 -- SQL in section 'Up' is executed when this migration is applied
 create table rooms (
 	id int AUTO_INCREMENT NOT NULL PRIMARY KEY,
-	name varchar(64),
-	description varchar(255)
+	name varchar(64) NOT NULL,
+	description varchar(255),
+	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    udpated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deletion tinyint(1) NOT NULL DEFAULT 0
 );
 
 

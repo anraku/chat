@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/anraku/chat/domain"
 	"github.com/gorilla/websocket"
 )
 
@@ -11,7 +12,7 @@ type client struct {
 	// socketはこのクライアントのためのWebSocketです。
 	socket *websocket.Conn
 	// sendはメッセージが送られるチャネルです。
-	send chan *message
+	send chan *domain.Message
 	// roomはこのクライアントが参加しているチャットルームです。
 	room *room
 	// userDataはユーザーに関する情報を保持します
@@ -20,11 +21,11 @@ type client struct {
 
 func (c *client) read() {
 	for {
-		var msg *message
+		var msg *domain.Message
 		if err := c.socket.ReadJSON(&msg); err == nil {
+			storeData(msg)
 			msg.When = time.Now()
-			// msg.Name = c.userData["name"].(string)
-			msg.Name = "test"
+			msg.Message = "test"
 			c.room.forward <- msg
 		} else {
 			break
@@ -40,4 +41,8 @@ func (c *client) write() {
 		}
 	}
 	c.socket.Close()
+}
+
+func storeData(m *domain.Message) error {
+	return nil
 }

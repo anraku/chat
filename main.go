@@ -39,7 +39,7 @@ func Room(c echo.Context) error {
 
 // Index render list of chat room
 func Index(c echo.Context) error {
-	rooms, err := repository.NewRepository(DB).Fetch()
+	rooms, err := repository.NewRoomRepository(DB).Fetch()
 	if err != nil {
 		panic(err)
 	}
@@ -61,7 +61,7 @@ func CreateRoom(c echo.Context) error {
 		Name:        c.FormValue("name"),
 		Description: c.FormValue("description"),
 	}
-	err := repository.NewRepository(DB).Create(newRoom)
+	err := repository.NewRoomRepository(DB).Create(newRoom)
 	if err != nil {
 		log.Fatal(err)
 		panic(err)
