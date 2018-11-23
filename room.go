@@ -79,12 +79,15 @@ var (
 
 // Chat is Handler with WebSocket in chat room
 func Chat(c echo.Context) error {
+	// WebSocket setting
 	roomID := c.Param("id")
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err
 	}
 	defer ws.Close()
+
+	// Room setting
 	var room *room
 	if _, ok := rooms[roomID]; ok {
 		room = rooms[roomID]
@@ -94,13 +97,21 @@ func Chat(c echo.Context) error {
 		rooms[roomID] = room
 		go room.run()
 	}
+
+	// create Client
+	userData, err := c.Cookie("username")
+	if err != nil {
+		return err
+	}
 	client := &client{
-		socket: ws,
-		send:   make(chan *domain.Message, messageBufferSize),
-		room:   room,
-		// userData: objx.MustFromBase64(authCookie.Value),
+		socket:   ws,
+		send:     make(chan *domain.Message, messageBufferSize),
+		room:     room,
+		userData: userData,
 	}
 	fmt.Printf("%#v\n", rooms)
+
+	// client join Room
 	room.join <- client
 	defer func() { room.leave <- client }()
 	go client.write()

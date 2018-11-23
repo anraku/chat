@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/anraku/chat/domain"
@@ -16,16 +17,16 @@ type client struct {
 	// roomはこのクライアントが参加しているチャットルームです。
 	room *room
 	// userDataはユーザーに関する情報を保持します
-	// userData map[string]interface{}
+	userData *http.Cookie
 }
 
 func (c *client) read() {
 	for {
 		var msg *domain.Message
 		if err := c.socket.ReadJSON(&msg); err == nil {
-			storeData(msg)
+			//storeData(msg)
 			msg.When = time.Now()
-			msg.Message = "test"
+			msg.UserName = c.userData.Value // retrieve username from cookie
 			c.room.forward <- msg
 		} else {
 			break

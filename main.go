@@ -39,6 +39,12 @@ func Room(c echo.Context) error {
 
 // Index render list of chat room
 func Index(c echo.Context) error {
+	// set Cookie
+	//TODO: set cookie in login form
+	cookie := new(http.Cookie)
+	cookie.Name = "username"
+	cookie.Value = "test"
+	c.SetCookie(cookie)
 	rooms, err := repository.NewRoomRepository(DB).Fetch()
 	if err != nil {
 		panic(err)
