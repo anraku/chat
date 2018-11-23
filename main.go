@@ -7,12 +7,13 @@ import (
 	"net/http"
 
 	"github.com/anraku/chat/database"
-	"github.com/anraku/chat/domain"
-	"github.com/anraku/chat/repository"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
+
+// DB is database connection
+var DB *gorm.DB
 
 // Template used for creating HTML
 type Template struct {
@@ -27,7 +28,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 // Room render chat window
-func Room(c echo.Context) error {
+func EnterRoom(c echo.Context) error {
 	req := c.Request()
 	uri := "ws://" + req.Host
 	data := map[string]interface{}{
@@ -45,7 +46,7 @@ func Index(c echo.Context) error {
 	cookie.Name = "username"
 	cookie.Value = "test"
 	c.SetCookie(cookie)
-	rooms, err := repository.NewRoomRepository(DB).Fetch()
+	rooms, err := NewRoomRepository(DB).Fetch()
 	if err != nil {
 		panic(err)
 	}
@@ -63,23 +64,17 @@ func NewRoom(c echo.Context) error {
 
 // CreateRoom create new room
 func CreateRoom(c echo.Context) error {
-	newRoom := domain.Room{
+	newRoom := Room{
 		Name:        c.FormValue("name"),
 		Description: c.FormValue("description"),
 	}
-	err := repository.NewRoomRepository(DB).Create(newRoom)
+	err := NewRoomRepository(DB).Create(newRoom)
 	if err != nil {
 		log.Fatal(err)
 		panic(err)
 	}
 	return c.Redirect(http.StatusMovedPermanently, "/index")
 }
-
-// DB is database connection
-var DB *gorm.DB
-
-// var r *room
-var rooms = make(map[string]*room, 1000)
 
 func main() {
 	// Setup db
@@ -106,7 +101,7 @@ func main() {
 	// Routing
 	e.GET("/", Index)
 	e.GET("/index", Index)
-	e.GET("/chat/:id", Room)
+	e.GET("/chat/:id", EnterRoom)
 	e.GET("/room/:id", Chat)
 	e.GET("/room/new", NewRoom)
 	e.POST("/room/create", CreateRoom)

@@ -3,62 +3,67 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 
-	"github.com/anraku/chat/domain"
 	"github.com/anraku/chat/trace"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 )
 
-type room struct {
-	// forwardは他のクライアントに転送するためのメッセージを保持するチャネルです。
-	forward chan *domain.Message
-	// joinはチャットルームに参加しようとしているクライアントのためのチャネルです。
-	join chan *client
-	// leaveはチャットルームから退室しようとしているクライアントのためのチャネルです
-	leave chan *client
-	// clientsには在室しているすべてのクライアントが保持されます。
-	clients map[*client]bool
-	// tracerはチャットルーム上で行われた操作のログを受け取ります。
-	tracer trace.Tracer
+// Roomは一つのチャットルームを表します
+type Room struct {
+	ID          int    `gorm:"column:id"`
+	Name        string `gorm:"column:name"`
+	Description string `gorm:"column:description"`
+	// Forwardは他のクライアントに転送するためのメッセージを保持するチャネルです。
+	Forward chan *Message
+	// Joinはチャットルームに参加しようとしているクライアントのためのチャネルです。
+	Join chan *Client
+	// Leaveはチャットルームから退室しようとしているクライアントのためのチャネルです
+	Leave chan *Client
+	// Clientsには在室しているすべてのクライアントが保持されます。
+	Clients map[*Client]bool
+	// Tracerはチャットルーム上で行われた操作のログを受け取ります。
+	Tracer trace.Tracer
 }
 
 // newRoomはすぐに利用できるチャットルームを生成して返します。
-func newRoom() *room {
-	return &room{
-		forward: make(chan *domain.Message),
-		join:    make(chan *client),
-		leave:   make(chan *client),
-		clients: make(map[*client]bool),
-		tracer:  trace.Off(),
+func newRoom(id int) *Room {
+	return &Room{
+		ID:      id,
+		Forward: make(chan *Message),
+		Join:    make(chan *Client),
+		Leave:   make(chan *Client),
+		Clients: make(map[*Client]bool),
+		Tracer:  trace.Off(),
 	}
 }
 
-func (r *room) run() {
+func (r *Room) run() {
 	for {
 		select {
-		case client := <-r.join:
+		case client := <-r.Join:
 			// 参加
-			r.clients[client] = true
-			r.tracer.Trace("新しいクライアントが参加しました")
-		case client := <-r.leave:
+			r.Clients[client] = true
+			r.Tracer.Trace("新しいクライアントが参加しました")
+		case client := <-r.Leave:
 			// 退室
-			delete(r.clients, client)
-			close(client.send)
-			r.tracer.Trace("クライアントが退室しました")
-		case msg := <-r.forward:
-			r.tracer.Trace("メッセージを受信しました: ", msg.Message)
+			delete(r.Clients, client)
+			close(client.Send)
+			r.Tracer.Trace("クライアントが退室しました")
+		case msg := <-r.Forward:
+			r.Tracer.Trace("メッセージを受信しました: ", msg.Message)
 			// すべてのクライアントにメッセージを転送
-			for client := range r.clients {
+			for client := range r.Clients {
 				select {
-				case client.send <- msg:
+				case client.Send <- msg:
 					// メッセージを送信
-					r.tracer.Trace(" -- クライアントに送信されました")
+					r.Tracer.Trace(" -- クライアントに送信されました")
 				default:
 					// 送信に失敗
-					delete(r.clients, client)
-					close(client.send)
-					r.tracer.Trace(" -- 送信に失敗しました。クライアントをクリーンアップします")
+					delete(r.Clients, client)
+					close(client.Send)
+					r.Tracer.Trace(" -- 送信に失敗しました。クライアントをクリーンアップします")
 				}
 			}
 		}
@@ -75,12 +80,17 @@ var (
 		ReadBufferSize:  socketBufferSize,
 		WriteBufferSize: messageBufferSize,
 	}
+	rooms = make(map[string]*Room, 1000)
 )
 
 // Chat is Handler with WebSocket in chat room
 func Chat(c echo.Context) error {
 	// WebSocket setting
 	roomID := c.Param("id")
+	id, err := strconv.Atoi(roomID)
+	if err != nil {
+		return err
+	}
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err
@@ -88,12 +98,13 @@ func Chat(c echo.Context) error {
 	defer ws.Close()
 
 	// Room setting
-	var room *room
+	var room *Room
 	if _, ok := rooms[roomID]; ok {
 		room = rooms[roomID]
 	} else {
-		room = newRoom()
-		room.tracer = trace.New(os.Stdout)
+		room = newRoom(id)
+		room.Tracer = trace.New(os.Stdout)
+		room.ID = id
 		rooms[roomID] = room
 		go room.run()
 	}
@@ -103,18 +114,20 @@ func Chat(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	client := &client{
-		socket:   ws,
-		send:     make(chan *domain.Message, messageBufferSize),
-		room:     room,
-		userData: userData,
+	client := &Client{
+		ID:       1,
+		Name:     "test",
+		Socket:   ws,
+		Send:     make(chan *Message, messageBufferSize),
+		Room:     room,
+		UserData: userData,
 	}
 	fmt.Printf("%#v\n", rooms)
 
-	// client join Room
-	room.join <- client
-	defer func() { room.leave <- client }()
-	go client.write()
-	client.read()
+	// client Join Room
+	room.Join <- client
+	defer func() { room.Leave <- client }()
+	go client.Write()
+	client.Read()
 	return nil
 }

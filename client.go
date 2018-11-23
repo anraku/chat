@@ -4,46 +4,53 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/anraku/chat/domain"
 	"github.com/gorilla/websocket"
 )
 
-// clientはチャットを行っている1人のユーザーを表します。
-type client struct {
+// Clientはチャットを行っている1人のユーザーを表します。
+type Client struct {
+	ID   int
+	Name string
 	// socketはこのクライアントのためのWebSocketです。
-	socket *websocket.Conn
+	Socket *websocket.Conn
 	// sendはメッセージが送られるチャネルです。
-	send chan *domain.Message
+	Send chan *Message
 	// roomはこのクライアントが参加しているチャットルームです。
-	room *room
+	Room *Room
 	// userDataはユーザーに関する情報を保持します
-	userData *http.Cookie
+	UserData *http.Cookie
 }
 
-func (c *client) read() {
+func (c *Client) Read() {
 	for {
-		var msg *domain.Message
-		if err := c.socket.ReadJSON(&msg); err == nil {
-			//storeData(msg)
+		var msg *Message
+		if err := c.Socket.ReadJSON(&msg); err == nil {
 			msg.When = time.Now()
-			msg.UserName = c.userData.Value // retrieve username from cookie
-			c.room.forward <- msg
+			msg.UserName = c.UserData.Value // retrieve username from cookie
+			c.Room.Forward <- msg
 		} else {
 			break
 		}
 	}
-	c.socket.Close()
+	c.Socket.Close()
 }
 
-func (c *client) write() {
-	for msg := range c.send {
-		if err := c.socket.WriteJSON(msg); err != nil {
+func (c *Client) Write() {
+	for msg := range c.Send {
+		if err := c.Socket.WriteJSON(msg); err != nil {
 			break
 		}
+		msg.RoomID = c.Room.ID
+		msg.UserID = c.ID
+		// store message
+		err := storeData(msg)
+		if err != nil {
+			panic(err)
+		}
 	}
-	c.socket.Close()
+	c.Socket.Close()
 }
 
-func storeData(m *domain.Message) error {
-	return nil
+func storeData(m *Message) error {
+	return NewMessageRepository(DB).Create(m)
 }
