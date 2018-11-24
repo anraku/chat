@@ -4,5 +4,7 @@ services:
     build: infra/mysql
     environment:
       MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./infra/mysql/sql:/docker-entrypoint-initdb.d
     ports: 
       - "3306:3306"
