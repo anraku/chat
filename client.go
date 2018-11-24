@@ -42,7 +42,7 @@ func (c *Client) Write() {
 		}
 		msg.RoomID = c.Room.ID
 		msg.UserID = c.ID
-		// store message
+		//store message
 		err := storeData(msg)
 		if err != nil {
 			panic(err)
@@ -52,5 +52,12 @@ func (c *Client) Write() {
 }
 
 func storeData(m *Message) error {
-	return NewMessageRepository(DB).Create(m)
+	tx := DB.Begin()
+	err := NewMessageRepository(tx).Create(m)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }

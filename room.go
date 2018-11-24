@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
@@ -12,7 +11,7 @@ import (
 
 // Roomは一つのチャットルームを表します
 type Room struct {
-	ID          int    `gorm:"column:id"`
+	ID          int    `gorm:"AUTO_INCREMENT;column:id"`
 	Name        string `gorm:"column:name"`
 	Description string `gorm:"column:description"`
 	// Forwardは他のクライアントに転送するためのメッセージを保持するチャネルです。
@@ -122,7 +121,6 @@ func Chat(c echo.Context) error {
 		Room:     room,
 		UserData: userData,
 	}
-	fmt.Printf("%#v\n", rooms)
 
 	// client Join Room
 	room.Join <- client
