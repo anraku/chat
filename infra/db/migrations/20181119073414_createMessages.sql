@@ -3,7 +3,7 @@
 -- SQL in section 'Up' is executed when this migration is applied
 create table messages (
 	id int AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    user_id integer(11) NOT NULL,
+    user_name varchar(128) NOT NULL,
     room_id integer(11) NOT NULL,
 	message varchar(255) NOT NULL,
     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

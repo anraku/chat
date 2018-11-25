@@ -14,7 +14,15 @@
    <div class="container">
      <div class="panel panel-default">
        <div class="panel-body">
-         <ul id="messages"></ul>
+         <ul id="messages">
+           {{ range .Messages }}
+           <li>
+             <img title="{{.Message}}" src="/avatars/gopher.png" style="width: 50px; vertical-align: middle;">
+            <strong>{{.UserName}}</strong>
+            <span>{{.Message}}</span>
+          </li>
+           {{ end }}
+         </ul>
        </div>
      </div>
      <form id="chatbox" role="form">

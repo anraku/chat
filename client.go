@@ -7,10 +7,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Clientはチャットを行っている1人のユーザーを表します。
-type Client struct {
-	ID   int
-	Name string
+// Userはチャットを行っている1人のユーザーを表します。
+type User struct {
+	ID   int    `gorm:"AUTO_INCREMENT;column:id"`
+	Name string `gorm:"column:name"`
 	// socketはこのクライアントのためのWebSocketです。
 	Socket *websocket.Conn
 	// sendはメッセージが送られるチャネルです。
@@ -21,7 +21,7 @@ type Client struct {
 	UserData *http.Cookie
 }
 
-func (c *Client) Read() {
+func (c *User) Read() {
 	for {
 		var msg *Message
 		if err := c.Socket.ReadJSON(&msg); err == nil {
@@ -35,13 +35,12 @@ func (c *Client) Read() {
 	c.Socket.Close()
 }
 
-func (c *Client) Write() {
+func (c *User) Write() {
 	for msg := range c.Send {
 		if err := c.Socket.WriteJSON(msg); err != nil {
 			break
 		}
 		msg.RoomID = c.Room.ID
-		msg.UserID = c.ID
 		//store message
 		err := storeData(msg)
 		if err != nil {

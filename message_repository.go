@@ -29,8 +29,8 @@ func (r *MessageRepository) GetByUserID(user_id int) (result Message, err error)
 	return
 }
 
-func (r *MessageRepository) GetByRoomID(room_id int) (result Message, err error) {
-	err = r.DB.Debug().Table("messages").Where("room_id = ?", room_id).First(&result).Error
+func (r *MessageRepository) GetByRoomID(room_id int) (result []Message, err error) {
+	err = r.DB.Debug().Table("messages").Where("room_id = ?", room_id).Find(&result).Error
 	return
 }
 

@@ -18,11 +18,11 @@ type Room struct {
 	// Forwardは他のクライアントに転送するためのメッセージを保持するチャネルです。
 	Forward chan *Message `gorm:"-"`
 	// Joinはチャットルームに参加しようとしているクライアントのためのチャネルです。
-	Join chan *Client `gorm:"-"`
+	Join chan *User `gorm:"-"`
 	// Leaveはチャットルームから退室しようとしているクライアントのためのチャネルです
-	Leave chan *Client `gorm:"-"`
-	// Clientsには在室しているすべてのクライアントが保持されます。
-	Clients map[*Client]bool `gorm:"-"`
+	Leave chan *User `gorm:"-"`
+	// Usersには在室しているすべてのクライアントが保持されます。
+	Users map[*User]bool `gorm:"-"`
 	// Tracerはチャットルーム上で行われた操作のログを受け取ります。
 	Tracer trace.Tracer `gorm:"-"`
 }
@@ -32,9 +32,9 @@ func newRoom(id int) *Room {
 	return &Room{
 		ID:      id,
 		Forward: make(chan *Message),
-		Join:    make(chan *Client),
-		Leave:   make(chan *Client),
-		Clients: make(map[*Client]bool),
+		Join:    make(chan *User),
+		Leave:   make(chan *User),
+		Users:   make(map[*User]bool),
 		Tracer:  trace.Off(),
 	}
 }
@@ -44,24 +44,24 @@ func (r *Room) run() {
 		select {
 		case client := <-r.Join:
 			// 参加
-			r.Clients[client] = true
+			r.Users[client] = true
 			r.Tracer.Trace("新しいクライアントが参加しました")
 		case client := <-r.Leave:
 			// 退室
-			delete(r.Clients, client)
+			delete(r.Users, client)
 			close(client.Send)
 			r.Tracer.Trace("クライアントが退室しました")
 		case msg := <-r.Forward:
 			r.Tracer.Trace("メッセージを受信しました: ", msg.Message)
 			// すべてのクライアントにメッセージを転送
-			for client := range r.Clients {
+			for client := range r.Users {
 				select {
 				case client.Send <- msg:
 					// メッセージを送信
 					r.Tracer.Trace(" -- クライアントに送信されました")
 				default:
 					// 送信に失敗
-					delete(r.Clients, client)
+					delete(r.Users, client)
 					close(client.Send)
 					r.Tracer.Trace(" -- 送信に失敗しました。クライアントをクリーンアップします")
 				}
@@ -115,7 +115,7 @@ func Chat(c echo.Context) error {
 		return err
 	}
 	userName := sess.Values["username"].(string)
-	client := &Client{
+	client := &User{
 		ID:     1,
 		Name:   userName,
 		Socket: ws,

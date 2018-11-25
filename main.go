@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/anraku/chat/database"
 	"github.com/gorilla/sessions"
@@ -61,9 +62,18 @@ func Logout(c echo.Context) error {
 func EnterRoom(c echo.Context) error {
 	req := c.Request()
 	uri := "ws://" + req.Host
+	roomID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return err
+	}
+	messages, err := NewMessageRepository(DB).GetByRoomID(roomID)
+	if err != nil {
+		return err
+	}
 	data := map[string]interface{}{
-		"ID":  c.Param("id"),
-		"Uri": uri,
+		"ID":       roomID,
+		"Uri":      uri,
+		"Messages": messages,
 	}
 	return c.Render(http.StatusOK, "chat.html", data)
 }
