@@ -26,7 +26,7 @@ func (c *Client) Read() {
 		var msg *Message
 		if err := c.Socket.ReadJSON(&msg); err == nil {
 			msg.When = time.Now()
-			msg.UserName = c.UserData.Value // retrieve username from cookie
+			msg.UserName = c.Name // retrieve username from session
 			c.Room.Forward <- msg
 		} else {
 			break

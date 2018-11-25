@@ -13,23 +13,19 @@
         <!-- Custom styles for this template -->
         <link href="/css/index.css" rel="stylesheet">
     
-        <title>新規作成</title>
+        <title>ログイン画面</title>
     </head>
 
     <body>
         <div class="container">
-        <h1 class="my-4">ルームを作る</h1>
-            <form action="/room/create" method="post">
+            <form action="/login" method="post">
                 <div class="form-group">
-                    <p>ルーム名</p>
-                    <input type="text" id="loginText" class="col-md-10 form-control" name="name"/>
+                    <label for="input_name" class="col-md-2 control-label">ユーザ名</label>
+                    <input type="text" class="col-md-10 form-control" name="name" id="loginText" aria-describedby="userHelp" placeholder="サイト内で使いたいユーザ名を入れてください">
+                    <small id="userHelp" class="form-text text-muted">未入力なら「名無しさん」になります</small>
                 </div>
                 <div class="form-group">
-                    <p>ルームの詳細</p>
-                    <input type="text" id="loginText" class="col-md-10 form-control" name="description"/>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">ルーム作成</button>
+                    <button type="submit" class="btn btn-primary">ログイン</button>
                 </div>
             </form>
         </div>

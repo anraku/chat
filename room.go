@@ -7,6 +7,7 @@ import (
 	"github.com/anraku/chat/trace"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo-contrib/session"
 )
 
 // Roomは一つのチャットルームを表します
@@ -15,15 +16,15 @@ type Room struct {
 	Name        string `gorm:"column:name"`
 	Description string `gorm:"column:description"`
 	// Forwardは他のクライアントに転送するためのメッセージを保持するチャネルです。
-	Forward chan *Message
+	Forward chan *Message `gorm:"-"`
 	// Joinはチャットルームに参加しようとしているクライアントのためのチャネルです。
-	Join chan *Client
+	Join chan *Client `gorm:"-"`
 	// Leaveはチャットルームから退室しようとしているクライアントのためのチャネルです
-	Leave chan *Client
+	Leave chan *Client `gorm:"-"`
 	// Clientsには在室しているすべてのクライアントが保持されます。
-	Clients map[*Client]bool
+	Clients map[*Client]bool `gorm:"-"`
 	// Tracerはチャットルーム上で行われた操作のログを受け取ります。
-	Tracer trace.Tracer
+	Tracer trace.Tracer `gorm:"-"`
 }
 
 // newRoomはすぐに利用できるチャットルームを生成して返します。
@@ -108,18 +109,18 @@ func Chat(c echo.Context) error {
 		go room.run()
 	}
 
-	// create Client
-	userData, err := c.Cookie("username")
+	// get username from session
+	sess, err := session.Get("session", c)
 	if err != nil {
 		return err
 	}
+	userName := sess.Values["username"].(string)
 	client := &Client{
-		ID:       1,
-		Name:     "test",
-		Socket:   ws,
-		Send:     make(chan *Message, messageBufferSize),
-		Room:     room,
-		UserData: userData,
+		ID:     1,
+		Name:   userName,
+		Socket: ws,
+		Room:   room,
+		Send:   make(chan *Message, messageBufferSize),
 	}
 
 	// client Join Room
