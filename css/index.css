@@ -20,3 +20,7 @@ body {
   bottom: 10%;
   right: 10%;
 }
+
+#message {
+  width: 50%;
+}

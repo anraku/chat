@@ -3,35 +3,36 @@
     <meta charset="UTF-8">
     <title>チャット</title>
     <link rel="stylesheet"
-       href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+      href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <style>
       ul#messages { list-style: none; }
       ul#messages li { margin-bottom: 2px; }
       ul#messages li img { margin-right: 10px; }
     </style>
+    <link href="/css/chat.css" rel="stylesheet">
   </head>
   <body>
-   <div class="container">
-     <div class="panel panel-default">
-       <div class="panel-body">
-         <ul id="messages">
-           {{ range .Messages }}
-           <li>
+  <div class="container">
+    <div class="panel panel-default">
+      <div id="panel" class="panel-body">
+        <ul id="messages" class="list-group list-group-flush">
+          {{ range .Messages }}
+          <li class="list-group-item">
             <span>{{.CreatedAt}}</span><br>
             <strong>{{.UserName}}</strong>
             <span>{{.Message}}</span>
           </li>
-           {{ end }}
-         </ul>
-       </div>
-     </div>
-     <form id="chatbox" role="form">
-       <div class="form-group">
-         <textarea id="message" class="form-control"></textarea>
-       </div>
-       <input type="submit" value="送信" class="btn btn-default" />
-     </form>
-   </div>
+          {{ end }}
+        </ul>
+      </div>
+    </div>
+    <form id="chatbox" role="form" class="container">
+      <div class="input-group">
+        <textarea id="message" class="form-control custom-control" style="resize:none"></textarea>     
+        <span id="send" class="input-group-addon btn btn-primary">送信</span>
+      </div>
+    </form>
+  </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">
 </script>
@@ -40,10 +41,10 @@
     var socket = null;
     var msgBox = $("#chatbox textarea");
     var messages = $("#messages");
-    $("#chatbox").submit(function(){
+    $("#send").click(function(){
       if (!msgBox.val()) return false;
       if (!socket) {
-        alert("エラー: WebSocket接続が行われていません。");
+        alert("エラー: 通信エラーが発生しました");
         return false;
       }
       socket.send(JSON.stringify({"Message": msgBox.val()}));
@@ -60,7 +61,7 @@
       socket.onmessage = function(e) {
         var msg = JSON.parse(e.data);
         messages.append(
-          $("<li>").append(
+          $("<li>").addClass("list-group-item").append(
             $("<span>").text(msg.When),
             $("<br>"),
             $("<strong>").text(msg.UserName + ": "),
