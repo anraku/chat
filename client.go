@@ -25,7 +25,7 @@ func (c *User) Read() {
 	for {
 		var msg *Message
 		if err := c.Socket.ReadJSON(&msg); err == nil {
-			msg.When = time.Now()
+			msg.When = time.Now().Format("2006年01月02日 15:04:05")
 			msg.UserName = c.Name // retrieve username from session
 			c.Room.Forward <- msg
 		} else {
@@ -41,6 +41,7 @@ func (c *User) Write() {
 			break
 		}
 		msg.RoomID = c.Room.ID
+		msg.CreatedAt = time.Now()
 		//store message
 		err := storeData(msg)
 		if err != nil {

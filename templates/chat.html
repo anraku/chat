@@ -17,7 +17,7 @@
          <ul id="messages">
            {{ range .Messages }}
            <li>
-             <img title="{{.Message}}" src="/avatars/gopher.png" style="width: 50px; vertical-align: middle;">
+            <span>{{.CreatedAt}}</span><br>
             <strong>{{.UserName}}</strong>
             <span>{{.Message}}</span>
           </li>
@@ -61,10 +61,8 @@
         var msg = JSON.parse(e.data);
         messages.append(
           $("<li>").append(
-            $("<img>").attr("title", msg.Message).css({
-              width:50,
-              verticalAlign:"middle"
-            }).attr("src", "/avatars/gopher.png"),
+            $("<span>").text(msg.When),
+            $("<br>"),
             $("<strong>").text(msg.UserName + ": "),
             $("<span>").text(msg.Message)
           )
