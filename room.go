@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/anraku/chat/domain"
 	"github.com/anraku/chat/trace"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
@@ -16,7 +17,7 @@ type Room struct {
 	Name        string `gorm:"column:name"`
 	Description string `gorm:"column:description"`
 	// Forwardは他のクライアントに転送するためのメッセージを保持するチャネルです。
-	Forward chan *Message `gorm:"-"`
+	Forward chan *domain.Message `gorm:"-"`
 	// Joinはチャットルームに参加しようとしているクライアントのためのチャネルです。
 	Join chan *User `gorm:"-"`
 	// Leaveはチャットルームから退室しようとしているクライアントのためのチャネルです
@@ -31,7 +32,7 @@ type Room struct {
 func newRoom(id int) *Room {
 	return &Room{
 		ID:      id,
-		Forward: make(chan *Message),
+		Forward: make(chan *domain.Message),
 		Join:    make(chan *User),
 		Leave:   make(chan *User),
 		Users:   make(map[*User]bool),
@@ -120,7 +121,7 @@ func Chat(c echo.Context) error {
 		Name:   userName,
 		Socket: ws,
 		Room:   room,
-		Send:   make(chan *Message, messageBufferSize),
+		Send:   make(chan *domain.Message, messageBufferSize),
 	}
 
 	// client Join Room

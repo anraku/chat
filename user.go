@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/anraku/chat/domain"
 	"github.com/gorilla/websocket"
 )
 
@@ -14,7 +15,7 @@ type User struct {
 	// socketはこのクライアントのためのWebSocketです。
 	Socket *websocket.Conn
 	// sendはメッセージが送られるチャネルです。
-	Send chan *Message
+	Send chan *domain.Message
 	// roomはこのクライアントが参加しているチャットルームです。
 	Room *Room
 	// userDataはユーザーに関する情報を保持します
@@ -23,7 +24,7 @@ type User struct {
 
 func (c *User) Read() {
 	for {
-		var msg *Message
+		var msg *domain.Message
 		if err := c.Socket.ReadJSON(&msg); err == nil {
 			msg.When = time.Now().Format("2006年01月02日 15:04:05")
 			msg.UserName = c.Name // retrieve username from session
@@ -51,7 +52,7 @@ func (c *User) Write() {
 	c.Socket.Close()
 }
 
-func storeData(m *Message) error {
+func storeData(m *domain.Message) error {
 	tx := DB.Begin()
 	err := NewMessageRepository(tx).Create(m)
 	if err != nil {
