@@ -14,10 +14,6 @@ import (
 // DB is database connection
 var DB *gorm.DB
 
-func LoginMenu(c echo.Context) error {
-	return c.Render(http.StatusOK, "login.html", nil)
-}
-
 func Login(c echo.Context) error {
 	// create session data
 	userName := c.FormValue("name")
@@ -126,6 +122,8 @@ func main() {
 	DB = db
 	defer db.Close()
 
-	app := NewRouter()
+	ur := NewUserRepository()
+	ui := NewUserInteractor(ur)
+	app := NewRouter(ui)
 	app.Start(":8080")
 }
