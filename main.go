@@ -14,32 +14,6 @@ import (
 // DB is database connection
 var DB *gorm.DB
 
-func Login(c echo.Context) error {
-	// create session data
-	userName := c.FormValue("name")
-	if userName == "" {
-		userName = "名無しさん"
-	}
-	sess, err := session.Get("session", c)
-	if err != nil {
-		return err
-	}
-	sess.Values["username"] = userName
-	sess.Save(c.Request(), c.Response())
-	return c.Redirect(http.StatusMovedPermanently, "/index")
-}
-
-func Logout(c echo.Context) error {
-	// delete session
-	sess, err := session.Get("session", c)
-	if err != nil {
-		panic(err)
-	}
-	delete(sess.Values, "username")
-	sess.Save(c.Request(), c.Response())
-	return c.Render(http.StatusOK, "logout.html", nil)
-}
-
 // Room render chat window
 func EnterRoom(c echo.Context) error {
 	req := c.Request()

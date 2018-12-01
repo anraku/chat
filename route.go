@@ -42,8 +42,8 @@ func NewRouter(ui *UserInteractor) *echo.Echo {
 
 	// Routing
 	e.GET("/login", func(c echo.Context) error { return userController.LoginMenu(c) })
-	e.POST("/login", Login)
-	e.GET("/logout", Logout)
+	e.POST("/login", func(c echo.Context) error { return userController.Login(c) }, saveSession)
+	e.GET("/logout", func(c echo.Context) error { return userController.Logout(c) }, deleteSession)
 	e.GET("/", Index, CheckLogin)
 	e.GET("/index", Index, CheckLogin)
 	e.GET("/chat/:id", EnterRoom)
@@ -52,4 +52,32 @@ func NewRouter(ui *UserInteractor) *echo.Echo {
 	e.POST("/room/create", CreateRoom, CheckLogin)
 
 	return e
+}
+
+func saveSession(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userName := c.FormValue("name")
+		if userName == "" {
+			userName = "名無しさん"
+		}
+		sess, err := session.Get("session", c)
+		if err != nil {
+			return err
+		}
+		sess.Values["username"] = userName
+		sess.Save(c.Request(), c.Response())
+		return next(c)
+	}
+}
+
+func deleteSession(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		sess, err := session.Get("session", c)
+		if err != nil {
+			return err
+		}
+		delete(sess.Values, "username")
+		sess.Save(c.Request(), c.Response())
+		return next(c)
+	}
 }
