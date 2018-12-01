@@ -7,6 +7,7 @@ import (
 )
 
 type Context interface {
+	Get(key string) interface{}
 	JSON(code int, i interface{}) error
 	Param(string) string
 	FormValue(name string) string

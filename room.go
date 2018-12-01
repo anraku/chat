@@ -1,14 +1,8 @@
 package main
 
 import (
-	"os"
-	"strconv"
-
 	"github.com/anraku/chat/domain"
 	"github.com/anraku/chat/trace"
-	"github.com/gorilla/websocket"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo-contrib/session"
 )
 
 // Roomは一つのチャットルームを表します
@@ -28,8 +22,7 @@ type Room struct {
 	Tracer trace.Tracer `gorm:"-"`
 }
 
-// newRoomはすぐに利用できるチャットルームを生成して返します。
-func newRoom(id int) *Room {
+func NewRoom(id int) *Room {
 	return &Room{
 		ID:      id,
 		Forward: make(chan *domain.Message),
@@ -69,65 +62,4 @@ func (r *Room) run() {
 			}
 		}
 	}
-}
-
-const (
-	socketBufferSize  = 1024
-	messageBufferSize = 256
-)
-
-var (
-	upgrader = websocket.Upgrader{
-		ReadBufferSize:  socketBufferSize,
-		WriteBufferSize: messageBufferSize,
-	}
-	rooms = make(map[string]*Room, 1000)
-)
-
-// Chat is Handler with WebSocket in chat room
-func Chat(c echo.Context) error {
-	// WebSocket setting
-	roomID := c.Param("id")
-	id, err := strconv.Atoi(roomID)
-	if err != nil {
-		return err
-	}
-	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
-	if err != nil {
-		return err
-	}
-	defer ws.Close()
-
-	// Room setting
-	var room *Room
-	if _, ok := rooms[roomID]; ok {
-		room = rooms[roomID]
-	} else {
-		room = newRoom(id)
-		room.Tracer = trace.New(os.Stdout)
-		room.ID = id
-		rooms[roomID] = room
-		go room.run()
-	}
-
-	// get username from session
-	sess, err := session.Get("session", c)
-	if err != nil {
-		return err
-	}
-	userName := sess.Values["username"].(string)
-	client := &User{
-		ID:     1,
-		Name:   userName,
-		Socket: ws,
-		Room:   room,
-		Send:   make(chan *domain.Message, messageBufferSize),
-	}
-
-	// client Join Room
-	room.Join <- client
-	defer func() { room.Leave <- client }()
-	go client.Write()
-	client.Read()
-	return nil
 }

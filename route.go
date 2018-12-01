@@ -4,6 +4,7 @@ package main
 import (
 	"html/template"
 	"io"
+	"net/http"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
@@ -25,6 +26,7 @@ func NewRouter(ui *UserInteractor) *echo.Echo {
 	userController := UserController{
 		Interactor: ui,
 	}
+	roomController := RoomController{}
 	e := echo.New()
 
 	e.Use(middleware.Logger())
@@ -41,17 +43,36 @@ func NewRouter(ui *UserInteractor) *echo.Echo {
 	e.Renderer = t
 
 	// Routing
+	// UserController
 	e.GET("/login", func(c echo.Context) error { return userController.LoginMenu(c) })
 	e.POST("/login", func(c echo.Context) error { return userController.Login(c) }, saveSession)
 	e.GET("/logout", func(c echo.Context) error { return userController.Logout(c) }, deleteSession)
-	e.GET("/", Index, CheckLogin)
-	e.GET("/index", Index, CheckLogin)
-	e.GET("/chat/:id", EnterRoom)
-	e.GET("/room/:id", Chat)
-	e.GET("/room/new", NewRoom, CheckLogin)
-	e.POST("/room/create", CreateRoom, CheckLogin)
+
+	// RoomController
+	e.GET("/", func(c echo.Context) error { return roomController.Index(c) }, checkLogin)
+	e.GET("/index", func(c echo.Context) error { return roomController.Index(c) }, checkLogin)
+	e.GET("/chat/:id", func(c echo.Context) error { return roomController.EnterRoom(c) })
+	e.GET("/room/:id", func(c echo.Context) error { return roomController.Chat(c) }, checkLogin)
+	e.GET("/room/new", func(c echo.Context) error { return roomController.NewRoom(c) }, checkLogin)
+	e.POST("/room/create", func(c echo.Context) error { return roomController.CreateRoom(c) }, checkLogin)
 
 	return e
+}
+
+func checkLogin(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// get username from session
+		sess, err := session.Get("session", c)
+		if err != nil {
+			return err
+		}
+		username := sess.Values["username"]
+		if username == nil || username == "" {
+			return c.Redirect(http.StatusMovedPermanently, "/login")
+		}
+		c.Set("username", username)
+		return next(c)
+	}
 }
 
 func saveSession(next echo.HandlerFunc) echo.HandlerFunc {
