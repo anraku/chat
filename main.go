@@ -18,7 +18,11 @@ func main() {
 	defer db.Close()
 
 	ur := NewUserRepository()
+	rr := NewRoomRepository(DB)
+
 	ui := NewUserInteractor(ur)
-	app := NewRouter(ui)
+	ri := NewRoomInteractor(rr)
+
+	app := NewRouter(ui, ri)
 	app.Start(":8080")
 }
