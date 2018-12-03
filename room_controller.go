@@ -33,10 +33,10 @@ var (
 )
 
 // Index render list of chat room
-func (*RoomController) Index(c interfaces.Context) error {
-	rooms, err := NewRoomRepository(DB).Fetch()
+func (controller *RoomController) Index(c interfaces.Context) error {
+	rooms, err := controller.Interactor.Fetch()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	// get username from context
 	var username string
