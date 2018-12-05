@@ -53,12 +53,12 @@ func (controller *RoomController) Index(c interfaces.Context) error {
 }
 
 // NewRoom render window to create new chat room
-func (*RoomController) NewRoom(c echo.Context) error {
+func (controller *RoomController) NewRoom(c echo.Context) error {
 	return c.Render(http.StatusOK, "new.html", nil)
 }
 
 // Room render chat window
-func (*RoomController) EnterRoom(c interfaces.Context) error {
+func (controller *RoomController) EnterRoom(c interfaces.Context) error {
 	req := c.Request()
 	uri := "ws://" + req.Host
 	roomID, err := strconv.Atoi(c.Param("id"))
@@ -78,12 +78,12 @@ func (*RoomController) EnterRoom(c interfaces.Context) error {
 }
 
 // CreateRoom create new room
-func (*RoomController) CreateRoom(c interfaces.Context) error {
+func (controller *RoomController) CreateRoom(c interfaces.Context) error {
 	newRoom := Room{
 		Name:        c.FormValue("name"),
 		Description: c.FormValue("description"),
 	}
-	err := NewRoomRepository(DB).Create(newRoom)
+	err := controller.Interactor.Create(newRoom)
 	if err != nil {
 		log.Fatal(err)
 		panic(err)

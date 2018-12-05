@@ -13,8 +13,10 @@ func NewRoomInteractor(r *RoomRepository) *RoomInteractor {
 
 func (interactor *RoomInteractor) Fetch() (rooms []Room, err error) {
 	rooms, err = interactor.repository.Fetch()
-	if err != nil {
-		return nil, err
-	}
-	return rooms, err
+	return
+}
+
+func (interactor *RoomInteractor) Create(room Room) (err error) {
+	err = interactor.repository.Create(room)
+	return
 }
