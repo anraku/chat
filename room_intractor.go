@@ -2,21 +2,23 @@
 package main
 
 type RoomInteractor struct {
-	repository *RoomRepository
+	roomRepository    *RoomRepository
+	messageRepository *MessageRepository
 }
 
-func NewRoomInteractor(r *RoomRepository) *RoomInteractor {
+func NewRoomInteractor(r *RoomRepository, m *MessageRepository) *RoomInteractor {
 	return &RoomInteractor{
-		repository: r,
+		roomRepository:    r,
+		messageRepository: m,
 	}
 }
 
 func (interactor *RoomInteractor) Fetch() (rooms []Room, err error) {
-	rooms, err = interactor.repository.Fetch()
+	rooms, err = interactor.roomRepository.Fetch()
 	return
 }
 
 func (interactor *RoomInteractor) Create(room Room) (err error) {
-	err = interactor.repository.Create(room)
+	err = interactor.roomRepository.Create(room)
 	return
 }

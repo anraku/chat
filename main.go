@@ -17,12 +17,13 @@ func main() {
 	DB = db
 	defer db.Close()
 
-	ur := NewUserRepository()
-	rr := NewRoomRepository(DB)
+	userRepo := NewUserRepository()
+	roomRepo := NewRoomRepository(DB)
+	messageRepo := NewMessageRepository(DB)
 
-	ui := NewUserInteractor(ur)
-	ri := NewRoomInteractor(rr)
+	userInteractor := NewUserInteractor(userRepo, messageRepo)
+	roomInteractor := NewRoomInteractor(roomRepo, messageRepo)
 
-	app := NewRouter(ui, ri)
+	app := NewRouter(userInteractor, roomInteractor)
 	app.Start(":8080")
 }

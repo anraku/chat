@@ -65,7 +65,7 @@ func (controller *RoomController) EnterRoom(c interfaces.Context) error {
 	if err != nil {
 		return err
 	}
-	messages, err := NewMessageRepository(DB).GetByRoomID(roomID)
+	messages, err := controller.Interactor.messageRepository.GetByRoomID(roomID)
 	if err != nil {
 		return err
 	}

@@ -1,11 +1,13 @@
 package main
 
 type UserInteractor struct {
-	Repository *UserRepository
+	userRepository    *UserRepository
+	messageRepository *MessageRepository
 }
 
-func NewUserInteractor(r *UserRepository) *UserInteractor {
+func NewUserInteractor(ur *UserRepository, mr *MessageRepository) *UserInteractor {
 	return &UserInteractor{
-		Repository: r,
+		userRepository:    ur,
+		messageRepository: mr,
 	}
 }
