@@ -23,7 +23,8 @@ func main() {
 
 	userInteractor := NewUserInteractor(userRepo, messageRepo)
 	roomInteractor := NewRoomInteractor(roomRepo, messageRepo)
+	messageInteractor := NewMessageInteractor(messageRepo)
 
-	app := NewRouter(userInteractor, roomInteractor)
+	app := NewRouter(userInteractor, roomInteractor, messageInteractor)
 	app.Start(":8080")
 }
