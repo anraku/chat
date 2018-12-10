@@ -9,6 +9,7 @@ import (
 	"github.com/anraku/chat/domain"
 	"github.com/anraku/chat/interfaces"
 	"github.com/anraku/chat/trace"
+	"github.com/anraku/chat/usecase"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 )
@@ -16,7 +17,8 @@ import (
 // package interfaces
 
 type RoomController struct {
-	Interactor *RoomInteractor
+	RoomInteractor    *usecase.RoomInteractor
+	MessageInteractor *usecase.MessageInteractor
 }
 
 const (

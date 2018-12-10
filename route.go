@@ -22,15 +22,16 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-func NewRouter(ui *UserInteractor, ri *RoomInteractor) *echo.Echo {
+func NewRouter(ui *UserInteractor, ri *RoomInteractor, mi *MessageInteractor) *echo.Echo {
 	// create user controller
 	userController := UserController{
-		Interactor: ui,
+		UserInteractor: ui,
 	}
 
 	// create room controller
 	roomController := RoomController{
-		Interactor: ri,
+		RoomInteractor:    ri,
+		MessageInteractor: mi,
 	}
 	e := echo.New()
 
