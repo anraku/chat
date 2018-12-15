@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/anraku/chat/database"
+	"github.com/anraku/chat/repository"
+	"github.com/anraku/chat/usecase"
 	"github.com/jinzhu/gorm"
 )
 
@@ -17,13 +19,13 @@ func main() {
 	DB = db
 	defer db.Close()
 
-	userRepo := NewUserRepository()
-	roomRepo := NewRoomRepository(DB)
-	messageRepo := NewMessageRepository(DB)
+	userRepo := repository.NewUserRepository(DB)
+	roomRepo := repository.NewRoomRepository(DB)
+	messageRepo := repository.NewMessageRepository(DB)
 
-	userInteractor := NewUserInteractor(userRepo, messageRepo)
-	roomInteractor := NewRoomInteractor(roomRepo, messageRepo)
-	messageInteractor := NewMessageInteractor(messageRepo)
+	userInteractor := usecase.NewUserInteractor(userRepo, messageRepo)
+	roomInteractor := usecase.NewRoomInteractor(roomRepo, messageRepo)
+	messageInteractor := usecase.NewMessageInteractor(messageRepo)
 
 	app := NewRouter(userInteractor, roomInteractor, messageInteractor)
 	app.Start(":8080")

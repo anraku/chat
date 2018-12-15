@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/anraku/chat/usecase"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo-contrib/session"
@@ -22,7 +23,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-func NewRouter(ui *UserInteractor, ri *RoomInteractor, mi *MessageInteractor) *echo.Echo {
+func NewRouter(ui *usecase.UserInteractor, ri *usecase.RoomInteractor, mi *usecase.MessageInteractor) *echo.Echo {
 	// create user controller
 	userController := UserController{
 		UserInteractor: ui,

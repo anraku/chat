@@ -31,12 +31,12 @@ var (
 		ReadBufferSize:  socketBufferSize,
 		WriteBufferSize: messageBufferSize,
 	}
-	rooms = make(map[string]*Room, 1000)
+	rooms = make(map[string]*domain.Room, 1000)
 )
 
 // Index render list of chat room
 func (controller *RoomController) Index(c interfaces.Context) error {
-	rooms, err := controller.Interactor.Fetch()
+	rooms, err := controller.RoomInteractor.Fetch()
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func (controller *RoomController) EnterRoom(c interfaces.Context) error {
 	if err != nil {
 		return err
 	}
-	messages, err := controller.Interactor.messageRepository.GetByRoomID(roomID)
+	messages, err := controller.MessageInteractor.GetByRoomID(roomID)
 	if err != nil {
 		return err
 	}
@@ -81,11 +81,11 @@ func (controller *RoomController) EnterRoom(c interfaces.Context) error {
 
 // CreateRoom create new room
 func (controller *RoomController) CreateRoom(c interfaces.Context) error {
-	newRoom := Room{
+	newRoom := domain.Room{
 		Name:        c.FormValue("name"),
 		Description: c.FormValue("description"),
 	}
-	err := controller.Interactor.Create(newRoom)
+	err := controller.RoomInteractor.Create(newRoom)
 	if err != nil {
 		log.Fatal(err)
 		panic(err)
@@ -108,15 +108,15 @@ func (*RoomController) Chat(c interfaces.Context) error {
 	defer ws.Close()
 
 	// Room setting
-	var room *Room
+	var room *domain.Room
 	if _, ok := rooms[roomID]; ok {
 		room = rooms[roomID]
 	} else {
-		room = NewRoom(id)
+		room = domain.NewRoom(id)
 		room.Tracer = trace.New(os.Stdout)
 		room.ID = id
 		rooms[roomID] = room
-		go room.run()
+		go room.Run()
 	}
 
 	// get username from context
@@ -126,7 +126,7 @@ func (*RoomController) Chat(c interfaces.Context) error {
 	} else {
 		username = ""
 	}
-	client := &User{
+	client := &domain.User{
 		ID:     1,
 		Name:   username,
 		Socket: ws,
