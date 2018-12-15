@@ -98,7 +98,10 @@ func (controller *RoomController) Chat(c interfaces.Context) error {
 	}
 	defer ws.Close()
 	// get roomID from URL parameter
-	roomID := c.Param("id")
+	roomID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return err
+	}
 	// get username from context
 	var username string
 	if v, ok := c.Get("username").(string); ok {
@@ -107,11 +110,11 @@ func (controller *RoomController) Chat(c interfaces.Context) error {
 		username = ""
 	}
 	user := &domain.User{
-		ID:     1,
 		Name:   username,
 		Socket: ws,
 		Send:   make(chan *domain.Message, messageBufferSize),
 	}
 
-	return user.EnterRoom(roomID)
+	room := domain.NewRoom(roomID)
+	return user.EnterRoom(room)
 }

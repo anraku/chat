@@ -21,26 +21,26 @@ type User struct {
 	UserData *http.Cookie
 }
 
-func (c *User) Read() {
+func (user *User) Read() {
 	for {
 		var msg *Message
-		if err := c.Socket.ReadJSON(&msg); err == nil {
+		if err := user.Socket.ReadJSON(&msg); err == nil {
 			msg.When = time.Now().Format("2006年01月02日 15:04:05")
-			msg.UserName = c.Name // retrieve username from session
-			c.Room.Forward <- msg
+			msg.UserName = user.Name // retrieve username from session
+			user.Room.Forward <- msg
 		} else {
 			break
 		}
 	}
-	c.Socket.Close()
+	user.Socket.Close()
 }
 
-func (c *User) Write() {
-	for msg := range c.Send {
-		if err := c.Socket.WriteJSON(msg); err != nil {
+func (user *User) Write() {
+	for msg := range user.Send {
+		if err := user.Socket.WriteJSON(msg); err != nil {
 			break
 		}
-		msg.RoomID = c.Room.ID
+		msg.RoomID = user.Room.ID
 		msg.CreatedAt = time.Now()
 		//store message
 		// err := interfaces.StoreData(msg)
@@ -48,5 +48,15 @@ func (c *User) Write() {
 		// 	panic(err)
 		// }
 	}
-	c.Socket.Close()
+	user.Socket.Close()
+}
+
+func (user *User) EnterRoom(room *Room) error {
+	// user Join Room
+	user.Room = room
+	room.Join <- user
+	defer func() { room.Leave <- user }()
+	go user.Write()
+	user.Read()
+	return nil
 }
