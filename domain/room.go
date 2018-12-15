@@ -1,6 +1,9 @@
 package domain
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/anraku/chat/trace"
 )
 
@@ -21,6 +24,8 @@ type Room struct {
 	Tracer trace.Tracer `gorm:"-"`
 }
 
+var rooms = make(map[string]*Room, 1000)
+
 func NewRoom(id int) *Room {
 	return &Room{
 		ID:      id,
@@ -30,6 +35,32 @@ func NewRoom(id int) *Room {
 		Users:   make(map[*User]bool),
 		Tracer:  trace.Off(),
 	}
+}
+
+func (user *User) EnterRoom(roomID string) error {
+	id, err := strconv.Atoi(roomID)
+	if err != nil {
+		return err
+	}
+	// Room setting
+	var room *Room
+	if _, ok := rooms[roomID]; ok {
+		room = rooms[roomID]
+	} else {
+		room = NewRoom(id)
+		room.Tracer = trace.New(os.Stdout)
+		room.ID = id
+		rooms[roomID] = room
+		go room.Run()
+	}
+	user.Room = room
+
+	// client Join Room
+	room.Join <- user
+	defer func() { room.Leave <- user }()
+	go user.Write()
+	user.Read()
+	return nil
 }
 
 func (r *Room) Run() {

@@ -3,22 +3,18 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/anraku/chat/domain"
 	"github.com/anraku/chat/interfaces"
-	"github.com/anraku/chat/trace"
 	"github.com/anraku/chat/usecase"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 )
 
-// package interfaces
-
 type RoomController struct {
 	RoomInteractor    *usecase.RoomInteractor
-	MessageInteractor *usecase.MessageInteractor
+	MessageInteractor interfaces.MessageInteractor
 }
 
 const (
@@ -94,31 +90,15 @@ func (controller *RoomController) CreateRoom(c interfaces.Context) error {
 }
 
 // Chat is Handler with WebSocket in chat room
-func (*RoomController) Chat(c interfaces.Context) error {
-	// WebSocket setting
-	roomID := c.Param("id")
-	id, err := strconv.Atoi(roomID)
-	if err != nil {
-		return err
-	}
+func (controller *RoomController) Chat(c interfaces.Context) error {
+	// setting WebSocket
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		return err
 	}
 	defer ws.Close()
-
-	// Room setting
-	var room *domain.Room
-	if _, ok := rooms[roomID]; ok {
-		room = rooms[roomID]
-	} else {
-		room = domain.NewRoom(id)
-		room.Tracer = trace.New(os.Stdout)
-		room.ID = id
-		rooms[roomID] = room
-		go room.Run()
-	}
-
+	// get roomID from URL parameter
+	roomID := c.Param("id")
 	// get username from context
 	var username string
 	if v, ok := c.Get("username").(string); ok {
@@ -126,18 +106,12 @@ func (*RoomController) Chat(c interfaces.Context) error {
 	} else {
 		username = ""
 	}
-	client := &domain.User{
+	user := &domain.User{
 		ID:     1,
 		Name:   username,
 		Socket: ws,
-		Room:   room,
 		Send:   make(chan *domain.Message, messageBufferSize),
 	}
 
-	// client Join Room
-	room.Join <- client
-	defer func() { room.Leave <- client }()
-	go client.Write()
-	client.Read()
-	return nil
+	return user.EnterRoom(roomID)
 }

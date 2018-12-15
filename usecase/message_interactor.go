@@ -10,7 +10,7 @@ type MessageInteractor struct {
 	messageRepository interfaces.MessageRepository
 }
 
-func NewMessageInteractor(m interfaces.MessageRepository) *MessageInteractor {
+func NewMessageInteractor(m interfaces.MessageRepository) interfaces.MessageInteractor {
 	return &MessageInteractor{
 		messageRepository: m,
 	}
@@ -19,4 +19,8 @@ func NewMessageInteractor(m interfaces.MessageRepository) *MessageInteractor {
 func (i *MessageInteractor) GetByRoomID(roomID int) (result []domain.Message, err error) {
 	result, err = i.messageRepository.GetByRoomID(roomID)
 	return
+}
+
+func (i *MessageInteractor) StoreData(m *domain.Message) error {
+	return i.messageRepository.StoreData(m)
 }

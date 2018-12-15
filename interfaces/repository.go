@@ -16,4 +16,5 @@ type MessageRepository interface {
 	GetByUserID(user_id int) (result domain.Message, err error)
 	GetByRoomID(room_id int) (result []domain.Message, err error)
 	Create(message *domain.Message) (err error)
+	StoreData(m *domain.Message) error
 }
