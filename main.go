@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/anraku/chat/database"
+	"github.com/anraku/chat/infrastructure"
 	"github.com/anraku/chat/repository"
 	"github.com/anraku/chat/usecase"
 	"github.com/jinzhu/gorm"
@@ -12,7 +12,7 @@ var DB *gorm.DB
 
 func main() {
 	// Setup db
-	db, err := database.Connect()
+	db, err := infrastructure.Connect()
 	if err != nil {
 		panic(err)
 	}
