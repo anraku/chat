@@ -116,6 +116,6 @@ func (controller *RoomController) Chat(c interfaces.Context) error {
 	}
 
 	room := domain.GetRoom(roomID)
-	user.EnterRoom(room)
+	user.EnterRoom(room, controller.MessageInteractor)
 	return nil
 }

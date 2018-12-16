@@ -35,7 +35,7 @@ func (user *User) Read() {
 	user.Socket.Close()
 }
 
-func (user *User) Write() {
+func (user *User) Write(interactor MessageInteractor) {
 	for msg := range user.Send {
 		if err := user.Socket.WriteJSON(msg); err != nil {
 			break
@@ -43,19 +43,19 @@ func (user *User) Write() {
 		msg.RoomID = user.Room.ID
 		msg.CreatedAt = time.Now()
 		//store message
-		// err := interfaces.StoreData(msg)
-		// if err != nil {
-		// 	panic(err)
-		// }
+		err := interactor.StoreData(msg)
+		if err != nil {
+			panic(err)
+		}
 	}
 	user.Socket.Close()
 }
 
-func (user *User) EnterRoom(room *Room) {
+func (user *User) EnterRoom(room *Room, interactor MessageInteractor) {
 	// user Join Room
 	user.Room = room
 	room.Join <- user
 	defer func() { room.Leave <- user }()
-	go user.Write()
+	go user.Write(interactor)
 	user.Read()
 }
