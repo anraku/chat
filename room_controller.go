@@ -115,6 +115,7 @@ func (controller *RoomController) Chat(c interfaces.Context) error {
 		Send:   make(chan *domain.Message, messageBufferSize),
 	}
 
-	room := domain.NewRoom(roomID)
-	return user.EnterRoom(room)
+	room := domain.GetRoom(roomID)
+	user.EnterRoom(room)
+	return nil
 }

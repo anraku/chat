@@ -25,7 +25,7 @@ type Room struct {
 
 var rooms = make(map[int]*Room, 1000)
 
-func NewRoom(id int) *Room {
+func GetRoom(id int) *Room {
 	// Room setting
 	var room *Room
 	if _, ok := rooms[id]; ok {

@@ -51,12 +51,11 @@ func (user *User) Write() {
 	user.Socket.Close()
 }
 
-func (user *User) EnterRoom(room *Room) error {
+func (user *User) EnterRoom(room *Room) {
 	// user Join Room
 	user.Room = room
 	room.Join <- user
 	defer func() { room.Leave <- user }()
 	go user.Write()
 	user.Read()
-	return nil
 }
