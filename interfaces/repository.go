@@ -8,7 +8,9 @@ type RoomRepository interface {
 	Create(room domain.Room) (err error)
 }
 
-type UserRepository interface{}
+type UserRepository interface {
+	Create(*domain.Message) error
+}
 
 type MessageRepository interface {
 	Fetch() (result []domain.Message, err error)

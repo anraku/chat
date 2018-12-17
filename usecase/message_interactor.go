@@ -18,7 +18,7 @@ func NewMessageInteractor(m interfaces.MessageRepository) interfaces.MessageInte
 	}
 }
 
-func (i *MessageInteractor) Write(user *domain.User) {
+func (i *MessageInteractor) write(user *domain.User) {
 	for msg := range user.Send {
 		if err := user.Socket.WriteJSON(msg); err != nil {
 			break
@@ -34,7 +34,7 @@ func (i *MessageInteractor) Write(user *domain.User) {
 	user.Socket.Close()
 }
 
-func (i *MessageInteractor) Read(user *domain.User) {
+func (i *MessageInteractor) read(user *domain.User) {
 	for {
 		var msg *domain.Message
 		if err := user.Socket.ReadJSON(&msg); err == nil {
@@ -48,11 +48,16 @@ func (i *MessageInteractor) Read(user *domain.User) {
 	user.Socket.Close()
 }
 
+func (i *MessageInteractor) EnterRoom(user *domain.User, room *domain.Room) {
+	// user Join Room
+	user.Room = room
+	room.Join <- user
+	defer func() { room.Leave <- user }()
+	go i.write(user)
+	i.read(user)
+}
+
 func (i *MessageInteractor) GetByRoomID(roomID int) (result []domain.Message, err error) {
 	result, err = i.messageRepository.GetByRoomID(roomID)
 	return
-}
-
-func (i *MessageInteractor) StoreData(m *domain.Message) error {
-	return i.messageRepository.StoreData(m)
 }

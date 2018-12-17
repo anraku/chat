@@ -7,13 +7,12 @@ import (
 
 	"github.com/anraku/chat/domain"
 	"github.com/anraku/chat/interfaces"
-	"github.com/anraku/chat/usecase"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 )
 
 type RoomController struct {
-	RoomInteractor    *usecase.RoomInteractor
+	RoomInteractor    interfaces.RoomInteractor
 	MessageInteractor interfaces.MessageInteractor
 }
 
@@ -116,6 +115,6 @@ func (controller *RoomController) Chat(c interfaces.Context) error {
 	}
 
 	room := domain.GetRoom(roomID)
-	user.EnterRoom(room, controller.MessageInteractor)
+	controller.MessageInteractor.EnterRoom(user, room)
 	return nil
 }

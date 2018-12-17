@@ -19,12 +19,3 @@ type User struct {
 	// userDataはユーザーに関する情報を保持します
 	UserData *http.Cookie
 }
-
-func (user *User) EnterRoom(room *Room, interactor MessageInteractor) {
-	// user Join Room
-	user.Room = room
-	room.Join <- user
-	defer func() { room.Leave <- user }()
-	// 	go user.Write(interactor)
-	// 	user.Read()
-}

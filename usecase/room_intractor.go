@@ -10,7 +10,7 @@ type RoomInteractor struct {
 	messageRepository interfaces.MessageRepository
 }
 
-func NewRoomInteractor(r interfaces.RoomRepository, m interfaces.MessageRepository) *RoomInteractor {
+func NewRoomInteractor(r interfaces.RoomRepository, m interfaces.MessageRepository) interfaces.RoomInteractor {
 	return &RoomInteractor{
 		roomRepository:    r,
 		messageRepository: m,
