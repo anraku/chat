@@ -13,6 +13,5 @@ func Connect() (*gorm.DB, error) {
 	dbname := os.Getenv("DB_NAME")
 	protocol := "tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")"
 	db, err := gorm.Open("mysql", user+":"+pass+"@"+protocol+"/"+dbname+"?charset=utf8&parseTime=True&loc=Local")
-	//db.AutoMigrate(&User{})
 	return db, err
 }
