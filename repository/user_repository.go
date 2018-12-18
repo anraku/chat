@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/anraku/chat/domain"
+	"github.com/anraku/chat/entity"
 	"github.com/jinzhu/gorm"
 )
 
@@ -15,6 +15,6 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	}
 }
 
-func (r *UserRepository) Create(m *domain.Message) error {
+func (r *UserRepository) Create(m *entity.Message) error {
 	return r.DB.Create(m).Error
 }

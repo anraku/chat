@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/anraku/chat/domain"
+	"github.com/anraku/chat/entity"
 	"github.com/anraku/chat/interfaces"
 )
 
@@ -17,7 +17,7 @@ func NewUserInteractor(ur interfaces.UserRepository, mr interfaces.MessageReposi
 	}
 }
 
-func (i *UserInteractor) StoreData(m *domain.Message) error {
+func (i *UserInteractor) StoreData(m *entity.Message) error {
 	err := i.userRepository.Create(m)
 	return err
 }

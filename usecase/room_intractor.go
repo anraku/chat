@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/anraku/chat/domain"
+	"github.com/anraku/chat/entity"
 	"github.com/anraku/chat/interfaces"
 )
 
@@ -17,12 +17,12 @@ func NewRoomInteractor(r interfaces.RoomRepository, m interfaces.MessageReposito
 	}
 }
 
-func (interactor *RoomInteractor) Fetch() (rooms []domain.Room, err error) {
+func (interactor *RoomInteractor) Fetch() (rooms []entity.Room, err error) {
 	rooms, err = interactor.roomRepository.Fetch()
 	return
 }
 
-func (interactor *RoomInteractor) Create(room domain.Room) (err error) {
+func (interactor *RoomInteractor) Create(room entity.Room) (err error) {
 	err = interactor.roomRepository.Create(room)
 	return
 }

@@ -1,17 +1,17 @@
 package interfaces
 
-import "github.com/anraku/chat/domain"
+import "github.com/anraku/chat/entity"
 
 type MessageInteractor interface {
-	EnterRoom(*domain.User, *domain.Room)
-	GetByRoomID(int) ([]domain.Message, error)
+	EnterRoom(*entity.User, *entity.Room)
+	GetByRoomID(int) ([]entity.Message, error)
 }
 
 type RoomInteractor interface {
-	Fetch() ([]domain.Room, error)
-	Create(domain.Room) error
+	Fetch() ([]entity.Room, error)
+	Create(entity.Room) error
 }
 
 type UserInteractor interface {
-	StoreData(*domain.Message) error
+	StoreData(*entity.Message) error
 }

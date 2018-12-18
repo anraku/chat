@@ -27,6 +27,6 @@ func main() {
 	roomInteractor := usecase.NewRoomInteractor(roomRepo, messageRepo)
 	messageInteractor := usecase.NewMessageInteractor(messageRepo)
 
-	app := NewRouter(userInteractor, roomInteractor, messageInteractor)
+	app := infrastructure.NewRouter(userInteractor, roomInteractor, messageInteractor)
 	app.Start(":8080")
 }
