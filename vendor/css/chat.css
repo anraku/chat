@@ -1,0 +1,14 @@
+#panel {
+    max-height: 90vh;
+}
+
+#chatbox {
+    position: fixed;
+    bottom: 0vh;
+    padding-left: 0px;
+}
+
+#messages {
+    max-height: 80vh;
+    overflow: scroll;
+}
