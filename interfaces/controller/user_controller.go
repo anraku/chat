@@ -6,10 +6,11 @@ import (
 	"net/http"
 
 	"github.com/anraku/chat/interfaces"
+	"github.com/anraku/chat/usecase"
 )
 
 type UserController struct {
-	UserInteractor interfaces.UserInteractor
+	UserInteractor usecase.UserInputBoundary
 }
 
 func (controller *UserController) LoginMenu(c interfaces.Context) error {

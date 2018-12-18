@@ -12,7 +12,7 @@ type MessageInteractor struct {
 	messageRepository interfaces.MessageRepository
 }
 
-func NewMessageInteractor(m interfaces.MessageRepository) interfaces.MessageInteractor {
+func NewMessageInteractor(m interfaces.MessageRepository) *MessageInteractor {
 	return &MessageInteractor{
 		messageRepository: m,
 	}

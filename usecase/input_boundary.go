@@ -1,17 +1,17 @@
-package interfaces
+package usecase
 
 import "github.com/anraku/chat/entity"
 
-type MessageInteractor interface {
+type MessageInputBoundary interface {
 	EnterRoom(*entity.User, *entity.Room)
 	GetByRoomID(int) ([]entity.Message, error)
 }
 
-type RoomInteractor interface {
+type RoomInputBoundary interface {
 	Fetch() ([]entity.Room, error)
 	Create(entity.Room) error
 }
 
-type UserInteractor interface {
+type UserInputBoundary interface {
 	StoreData(*entity.Message) error
 }

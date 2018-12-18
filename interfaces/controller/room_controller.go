@@ -7,13 +7,14 @@ import (
 
 	"github.com/anraku/chat/entity"
 	"github.com/anraku/chat/interfaces"
+	"github.com/anraku/chat/usecase"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 )
 
 type RoomController struct {
-	RoomInteractor    interfaces.RoomInteractor
-	MessageInteractor interfaces.MessageInteractor
+	RoomInteractor    usecase.RoomInputBoundary
+	MessageInteractor usecase.MessageInputBoundary
 }
 
 const (
