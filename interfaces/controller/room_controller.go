@@ -7,6 +7,7 @@ import (
 
 	"github.com/anraku/chat/entity"
 	"github.com/anraku/chat/interfaces"
+	"github.com/anraku/chat/interfaces/presenter"
 	"github.com/anraku/chat/usecase"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
@@ -36,18 +37,9 @@ func (controller *RoomController) Index(c interfaces.Context) error {
 	if err != nil {
 		return err
 	}
-	// get username from context
-	var username string
-	if v, ok := c.Get("username").(string); ok {
-		username = v
-	} else {
-		username = ""
-	}
-	m := map[string]interface{}{
-		"username": username,
-		"rooms":    rooms,
-	}
-	return c.Render(http.StatusOK, "index.html", m)
+
+	data := presenter.NewRoomPresenter().CreateIndexData(c, rooms)
+	return c.Render(http.StatusOK, "index.html", data)
 }
 
 // NewRoom render window to create new chat room

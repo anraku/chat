@@ -7,13 +7,14 @@ import (
 
 type RoomInteractor struct {
 	roomRepository    interfaces.RoomRepository
+	RoomPresenter     RoomOutputBoundary
 	messageRepository interfaces.MessageRepository
 }
 
-func NewRoomInteractor(r interfaces.RoomRepository, m interfaces.MessageRepository) *RoomInteractor {
+func NewRoomInteractor(rr interfaces.RoomRepository, mr interfaces.MessageRepository) *RoomInteractor {
 	return &RoomInteractor{
-		roomRepository:    r,
-		messageRepository: m,
+		roomRepository:    rr,
+		messageRepository: mr,
 	}
 }
 
