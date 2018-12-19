@@ -2,15 +2,14 @@ package usecase
 
 import (
 	"github.com/anraku/chat/entity"
-	"github.com/anraku/chat/interfaces"
 )
 
 type UserInteractor struct {
-	userRepository    interfaces.UserRepository
-	messageRepository interfaces.MessageRepository
+	userRepository    UserRepository
+	messageRepository MessageRepository
 }
 
-func NewUserInteractor(ur interfaces.UserRepository, mr interfaces.MessageRepository) *UserInteractor {
+func NewUserInteractor(ur UserRepository, mr MessageRepository) *UserInteractor {
 	return &UserInteractor{
 		userRepository:    ur,
 		messageRepository: mr,

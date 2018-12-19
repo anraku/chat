@@ -2,16 +2,15 @@ package usecase
 
 import (
 	"github.com/anraku/chat/entity"
-	"github.com/anraku/chat/interfaces"
 )
 
 type RoomInteractor struct {
-	roomRepository    interfaces.RoomRepository
+	roomRepository    RoomRepository
 	RoomPresenter     RoomOutputBoundary
-	messageRepository interfaces.MessageRepository
+	messageRepository MessageRepository
 }
 
-func NewRoomInteractor(rr interfaces.RoomRepository, mr interfaces.MessageRepository) *RoomInteractor {
+func NewRoomInteractor(rr RoomRepository, mr MessageRepository) *RoomInteractor {
 	return &RoomInteractor{
 		roomRepository:    rr,
 		messageRepository: mr,

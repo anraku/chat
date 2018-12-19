@@ -4,15 +4,14 @@ import (
 	"time"
 
 	"github.com/anraku/chat/entity"
-	"github.com/anraku/chat/interfaces"
 )
 
 type MessageInteractor struct {
-	roomRepository    interfaces.RoomRepository
-	messageRepository interfaces.MessageRepository
+	roomRepository    RoomRepository
+	messageRepository MessageRepository
 }
 
-func NewMessageInteractor(m interfaces.MessageRepository) *MessageInteractor {
+func NewMessageInteractor(m MessageRepository) *MessageInteractor {
 	return &MessageInteractor{
 		messageRepository: m,
 	}
