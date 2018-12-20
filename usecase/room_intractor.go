@@ -6,7 +6,6 @@ import (
 
 type RoomInteractor struct {
 	roomRepository    RoomRepository
-	RoomPresenter     RoomOutputBoundary
 	messageRepository MessageRepository
 }
 

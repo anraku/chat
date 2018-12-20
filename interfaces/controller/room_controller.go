@@ -7,10 +7,8 @@ import (
 
 	"github.com/anraku/chat/entity"
 	"github.com/anraku/chat/interfaces"
-	"github.com/anraku/chat/interfaces/presenter"
 	"github.com/anraku/chat/usecase"
 	"github.com/gorilla/websocket"
-	"github.com/labstack/echo"
 )
 
 type RoomController struct {
@@ -38,12 +36,22 @@ func (controller *RoomController) Index(c interfaces.Context) error {
 		return err
 	}
 
-	data := presenter.NewRoomPresenter().CreateIndexData(c, rooms)
+	// get username from context
+	var username string
+	if v, ok := c.Get("username").(string); ok {
+		username = v
+	} else {
+		username = ""
+	}
+	data := map[string]interface{}{
+		"username": username,
+		"rooms":    rooms,
+	}
 	return c.Render(http.StatusOK, "index.html", data)
 }
 
 // NewRoom render window to create new chat room
-func (controller *RoomController) NewRoom(c echo.Context) error {
+func (controller *RoomController) NewRoom(c interfaces.Context) error {
 	return c.Render(http.StatusOK, "new.html", nil)
 }
 

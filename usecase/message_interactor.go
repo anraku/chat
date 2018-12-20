@@ -38,7 +38,7 @@ func (i *MessageInteractor) read(user *entity.User) {
 		var msg *entity.Message
 		if err := user.Socket.ReadJSON(&msg); err == nil {
 			msg.When = time.Now().Format("2006年01月02日 15:04:05")
-			msg.UserName = user.Name // retrieve username from session
+			msg.UserName = user.Name
 			user.Room.Forward <- msg
 		} else {
 			break
@@ -48,7 +48,7 @@ func (i *MessageInteractor) read(user *entity.User) {
 }
 
 func (i *MessageInteractor) EnterRoom(user *entity.User, room *entity.Room) {
-	// user Join Room
+	// user join Room
 	user.Room = room
 	room.Join <- user
 	defer func() { room.Leave <- user }()
