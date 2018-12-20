@@ -13,5 +13,5 @@ type RoomInputBoundary interface {
 }
 
 type UserInputBoundary interface {
-	StoreData(*entity.Message) error
+	SaveUser(interface{}) error
 }

@@ -1,9 +1,5 @@
 package usecase
 
-import (
-	"github.com/anraku/chat/entity"
-)
-
 type UserInteractor struct {
 	userRepository    UserRepository
 	messageRepository MessageRepository
@@ -16,7 +12,7 @@ func NewUserInteractor(ur UserRepository, mr MessageRepository) *UserInteractor 
 	}
 }
 
-func (i *UserInteractor) StoreData(m *entity.Message) error {
-	err := i.userRepository.Create(m)
+func (i *UserInteractor) SaveUser(data interface{}) error {
+	err := i.userRepository.Create(data)
 	return err
 }

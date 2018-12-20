@@ -14,7 +14,7 @@ func main() {
 	}
 	defer db.Close()
 
-	userRepo := repository.NewUserRepository(db)
+	userRepo := repository.NewUserSessionRepository()
 	roomRepo := repository.NewRoomRepository(db)
 	messageRepo := repository.NewMessageRepository(db)
 

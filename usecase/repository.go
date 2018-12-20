@@ -9,7 +9,7 @@ type RoomRepository interface {
 }
 
 type UserRepository interface {
-	Create(*entity.Message) error
+	Create(interface{}) error
 }
 
 type MessageRepository interface {

@@ -1,20 +1,16 @@
 package repository
 
 import (
-	"github.com/anraku/chat/entity"
-	"github.com/jinzhu/gorm"
+	"github.com/anraku/chat/usecase"
 )
 
-type UserRepository struct {
-	DB *gorm.DB
+type UserSessionRepository struct{}
+
+func NewUserSessionRepository() usecase.UserRepository {
+	return &UserSessionRepository{}
 }
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
-	return &UserRepository{
-		DB: db,
-	}
-}
-
-func (r *UserRepository) Create(m *entity.Message) error {
-	return r.DB.Create(m).Error
+func (r *UserSessionRepository) Create(data interface{}) error {
+	// save user to session
+	return nil
 }
