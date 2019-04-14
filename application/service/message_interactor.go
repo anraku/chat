@@ -3,21 +3,22 @@ package usecase
 import (
 	"time"
 
-	"github.com/anraku/chat/entity"
+	"github.com/anraku/chat/model/model"
+	"github.com/anraku/chat/model/repository"
 )
 
 type MessageInteractor struct {
-	roomRepository    RoomRepository
-	messageRepository MessageRepository
+	roomRepository    repository.RoomRepository
+	messageRepository repository.MessageRepository
 }
 
-func NewMessageInteractor(m MessageRepository) *MessageInteractor {
+func NewMessageInteractor(m repository.MessageRepository) *MessageInteractor {
 	return &MessageInteractor{
 		messageRepository: m,
 	}
 }
 
-func (i *MessageInteractor) write(user *entity.User) {
+func (i *MessageInteractor) write(user *model.User) {
 	for msg := range user.Send {
 		if err := user.Socket.WriteJSON(msg); err != nil {
 			break
@@ -33,9 +34,9 @@ func (i *MessageInteractor) write(user *entity.User) {
 	user.Socket.Close()
 }
 
-func (i *MessageInteractor) read(user *entity.User) {
+func (i *MessageInteractor) read(user *model.User) {
 	for {
-		var msg *entity.Message
+		var msg *model.Message
 		if err := user.Socket.ReadJSON(&msg); err == nil {
 			msg.When = time.Now().Format("2006年01月02日 15:04:05")
 			msg.UserName = user.Name
@@ -47,7 +48,7 @@ func (i *MessageInteractor) read(user *entity.User) {
 	user.Socket.Close()
 }
 
-func (i *MessageInteractor) EnterRoom(user *entity.User, room *entity.Room) {
+func (i *MessageInteractor) EnterRoom(user *model.User, room *model.Room) {
 	// user join Room
 	user.Room = room
 	room.Join <- user
@@ -56,7 +57,7 @@ func (i *MessageInteractor) EnterRoom(user *entity.User, room *entity.Room) {
 	i.read(user)
 }
 
-func (i *MessageInteractor) GetByRoomID(roomID int) (result []entity.Message, err error) {
+func (i *MessageInteractor) GetByRoomID(roomID int) (result []model.Message, err error) {
 	result, err = i.messageRepository.GetByRoomID(roomID)
 	return
 }
