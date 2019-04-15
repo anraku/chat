@@ -2,6 +2,10 @@ package usecase
 
 import "github.com/anraku/chat/domain/repository"
 
+type UserUsecase interface {
+	SaveUser(interface{}) error
+}
+
 type UserInteractor struct {
 	userRepository    repository.UserRepository
 	messageRepository repository.MessageRepository

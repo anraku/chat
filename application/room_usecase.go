@@ -1,9 +1,15 @@
 package usecase
 
 import (
+	"github.com/anraku/chat/entity"
 	"github.com/anraku/chat/model"
 	"github.com/anraku/chat/model/repository"
 )
+
+type RoomInputBoundary interface {
+	Fetch() ([]entity.Room, error)
+	Create(entity.Room) error
+}
 
 type RoomInteractor struct {
 	roomRepository    repository.RoomRepository

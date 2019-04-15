@@ -3,9 +3,15 @@ package usecase
 import (
 	"time"
 
+	"github.com/anraku/chat/entity"
 	"github.com/anraku/chat/model/model"
 	"github.com/anraku/chat/model/repository"
 )
+
+type MessageUsecase interface {
+	EnterRoom(*entity.User, *entity.Room)
+	GetByRoomID(int) ([]entity.Message, error)
+}
 
 type MessageInteractor struct {
 	roomRepository    repository.RoomRepository
