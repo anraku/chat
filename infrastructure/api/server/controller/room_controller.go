@@ -5,10 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/anraku/chat/entity"
-	"github.com/anraku/chat/interfaces"
-	"github.com/anraku/chat/usecase"
+	"github.com/anraku/chat/domain/model"
 	"github.com/gorilla/websocket"
+	"github.com/labstack/echo"
 )
 
 type RoomController struct {
@@ -26,11 +25,11 @@ var (
 		ReadBufferSize:  socketBufferSize,
 		WriteBufferSize: messageBufferSize,
 	}
-	rooms = make(map[string]*entity.Room, 1000)
+	rooms = make(map[string]*model.Room, 1000)
 )
 
 // Index render list of chat room
-func (controller *RoomController) Index(c interfaces.Context) error {
+func (controller *RoomController) Index(c echo.Context) error {
 	rooms, err := controller.RoomInteractor.Fetch()
 	if err != nil {
 		return err
@@ -51,19 +50,19 @@ func (controller *RoomController) Index(c interfaces.Context) error {
 }
 
 // NewRoom render window to create new chat room
-func (controller *RoomController) NewRoom(c interfaces.Context) error {
+func (controller *RoomController) NewRoom(c echo.Context) error {
 	return c.Render(http.StatusOK, "new.html", nil)
 }
 
 // Room render chat window
-func (controller *RoomController) EnterRoom(c interfaces.Context) error {
+func (controller *RoomController) EnterRoom(c echo.Context) error {
 	req := c.Request()
 	uri := "ws://" + req.Host
 	roomID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return err
 	}
-	messages, err := controller.MessageInteractor.GetByRoomID(roomID)
+	messages, err := controller.MessageInteractor.GetMessage(roomID)
 	if err != nil {
 		return err
 	}
@@ -76,8 +75,8 @@ func (controller *RoomController) EnterRoom(c interfaces.Context) error {
 }
 
 // CreateRoom create new room
-func (controller *RoomController) CreateRoom(c interfaces.Context) error {
-	newRoom := entity.Room{
+func (controller *RoomController) CreateRoom(c echo.Context) error {
+	newRoom := model.Room{
 		Name:        c.FormValue("name"),
 		Description: c.FormValue("description"),
 	}
@@ -90,7 +89,7 @@ func (controller *RoomController) CreateRoom(c interfaces.Context) error {
 }
 
 // Chat is Handler with WebSocket in chat room
-func (controller *RoomController) Chat(c interfaces.Context) error {
+func (controller *RoomController) Chat(c echo.Context) error {
 	// setting WebSocket
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
@@ -109,13 +108,13 @@ func (controller *RoomController) Chat(c interfaces.Context) error {
 	} else {
 		username = ""
 	}
-	user := &entity.User{
+	user := &domain.User{
 		Name:   username,
 		Socket: ws,
-		Send:   make(chan *entity.Message, messageBufferSize),
+		Send:   make(chan *model.Message, messageBufferSize),
 	}
 
-	room := entity.GetRoom(roomID)
+	room := model.GetRoom(roomID)
 	controller.MessageInteractor.EnterRoom(user, room)
 	return nil
 }

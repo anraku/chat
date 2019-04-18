@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/anraku/chat/infrastructure"
-	"github.com/anraku/chat/interfaces/repository"
+	"github.com/anraku/chat/domain/repository"
+	"github.com/anraku/chat/infrastructure/database/persistence"
 	"github.com/anraku/chat/usecase"
 )
 
 func main() {
 	// Setup db
-	db, err := infrastructure.Connect()
+	db, err := persistence.Connect()
 	if err != nil {
 		panic(err)
 	}
@@ -22,6 +22,6 @@ func main() {
 	roomInteractor := usecase.NewRoomInteractor(roomRepo, messageRepo)
 	messageInteractor := usecase.NewMessageInteractor(messageRepo)
 
-	app := infrastructure.NewRouter(userInteractor, roomInteractor, messageInteractor)
+	app := router.NewRouter(userInteractor, roomInteractor, messageInteractor)
 	app.Start(":8080")
 }

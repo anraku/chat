@@ -1,4 +1,4 @@
-package repository
+package persistence
 
 import (
 	"github.com/anraku/chat/usecase"

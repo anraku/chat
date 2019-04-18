@@ -1,7 +1,7 @@
-package repository
+package persistence
 
 import (
-	"github.com/anraku/chat/model"
+	"github.com/anraku/chat/domain/model"
 	"github.com/jinzhu/gorm"
 )
 

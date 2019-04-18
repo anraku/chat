@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/anraku/chat/model"
+import "github.com/anraku/chat/domain/model"
 
 type RoomRepository interface {
 	Fetch() (rooms []model.Room, err error)

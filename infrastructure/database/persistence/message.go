@@ -1,7 +1,7 @@
-package repository
+package persistence
 
 import (
-	"github.com/anraku/chat/model"
+	"github.com/anraku/chat/domain/model"
 	"github.com/jinzhu/gorm"
 )
 
@@ -30,7 +30,7 @@ func (r *MessageRepository) GetByUserID(user_id int) (result model.Message, err 
 	return
 }
 
-func (r *MessageRepository) GetByRoomID(room_id int) (result []model.Message, err error) {
+func (r *MessageRepository) GetMessagesByRoomID(room_id int) (result []model.Message, err error) {
 	err = r.DB.Debug().Table("messages").Where("room_id = ?", room_id).Find(&result).Error
 	return
 }
