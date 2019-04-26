@@ -3,7 +3,7 @@ package model
 import (
 	"os"
 
-	"github.com/anraku/chat/trace"
+	"github.com/anraku/chat/interfaces/trace"
 )
 
 // Roomは一つのチャットルームを表します

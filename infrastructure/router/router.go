@@ -45,7 +45,7 @@ func NewRouter(ui usecase.UserUsecase, ri usecase.RoomUsecase, mi usecase.Messag
 
 	// setting tmeplates
 	t := &Template{
-		templates: template.Must(template.ParseGlob("templates/*.html")),
+		templates: template.Must(template.ParseGlob("interfaces/controller/templates/*.html")),
 	}
 	e.Renderer = t
 

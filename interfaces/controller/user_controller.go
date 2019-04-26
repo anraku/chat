@@ -1,7 +1,5 @@
 package controller
 
-// package interfaces
-
 import (
 	"net/http"
 
