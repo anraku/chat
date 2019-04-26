@@ -1,3 +1,3 @@
 development:
     driver: mymysql
-    open: tcp:localhost:3306*chat/root/password
+    open: tcp:localhost:$DB_PORT*chat/root/password

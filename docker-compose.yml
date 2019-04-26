@@ -7,4 +7,4 @@ services:
     volumes:
       - ./infra/mysql/sql:/docker-entrypoint-initdb.d
     ports: 
-      - "3306:3306"
+      - "3316:3306"
