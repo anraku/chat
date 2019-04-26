@@ -23,11 +23,9 @@ func NewRoomInteractor(rr repository.RoomRepository, mr repository.MessageReposi
 }
 
 func (interactor *RoomInteractor) Fetch() (rooms []model.Room, err error) {
-	rooms, err = interactor.roomRepository.Fetch()
-	return
+	return interactor.roomRepository.Fetch()
 }
 
 func (interactor *RoomInteractor) Create(room model.Room) (err error) {
-	err = interactor.roomRepository.Create(room)
-	return
+	return interactor.roomRepository.Create(room)
 }

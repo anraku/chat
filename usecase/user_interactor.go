@@ -19,6 +19,5 @@ func NewUserInteractor(ur repository.UserRepository) UserUsecase {
 }
 
 func (i *UserInteractor) SaveUser(data interface{}) error {
-	err := i.userRepository.Create(data)
-	return err
+	return i.userRepository.Create(data)
 }

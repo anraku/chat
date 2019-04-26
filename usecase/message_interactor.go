@@ -1,10 +1,9 @@
 package usecase
 
 import (
-	"time"
-
 	"github.com/anraku/chat/domain/model"
 	"github.com/anraku/chat/domain/repository"
+	"github.com/anraku/chat/domain/service"
 )
 
 type MessageUsecase interface {
@@ -13,44 +12,12 @@ type MessageUsecase interface {
 }
 
 type MessageInteractor struct {
-	roomRepository    repository.RoomRepository
-	messageRepository repository.MessageRepository
+	s  service.MessageService
+	mr repository.MessageRepository
 }
 
-func NewMessageInteractor(m repository.MessageRepository) MessageUsecase {
-	return &MessageInteractor{
-		messageRepository: m,
-	}
-}
-
-func (i *MessageInteractor) write(user *model.User) {
-	for msg := range user.Send {
-		if err := user.Socket.WriteJSON(msg); err != nil {
-			break
-		}
-		msg.RoomID = user.Room.ID
-		msg.CreatedAt = time.Now()
-		//store message
-		err := i.messageRepository.StoreData(msg)
-		if err != nil {
-			panic(err)
-		}
-	}
-	user.Socket.Close()
-}
-
-func (i *MessageInteractor) read(user *model.User) {
-	for {
-		var msg *model.Message
-		if err := user.Socket.ReadJSON(&msg); err == nil {
-			msg.When = time.Now().Format("2006年01月02日 15:04:05")
-			msg.UserName = user.Name
-			user.Room.Forward <- msg
-		} else {
-			break
-		}
-	}
-	user.Socket.Close()
+func NewMessageInteractor(s service.MessageService, mr repository.MessageRepository) MessageUsecase {
+	return &MessageInteractor{s, mr}
 }
 
 func (i *MessageInteractor) EnterRoom(user *model.User, room *model.Room) {
@@ -58,11 +25,10 @@ func (i *MessageInteractor) EnterRoom(user *model.User, room *model.Room) {
 	user.Room = room
 	room.Join <- user
 	defer func() { room.Leave <- user }()
-	go i.write(user)
-	i.read(user)
+	go i.s.Write(user)
+	i.s.Read(user)
 }
 
 func (i *MessageInteractor) GetByRoomID(roomID int) (result []model.Message, err error) {
-	result, err = i.messageRepository.GetByRoomID(roomID)
-	return
+	return i.mr.GetByRoomID(roomID)
 }
