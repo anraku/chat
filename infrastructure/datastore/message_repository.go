@@ -1,4 +1,4 @@
-package repository
+package datastore
 
 import (
 	"github.com/anraku/chat/domain/model"
