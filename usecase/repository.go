@@ -1,11 +1,11 @@
 package usecase
 
-import "github.com/anraku/chat/entity"
+import "github.com/anraku/chat/domain/model"
 
 type RoomRepository interface {
-	Fetch() (rooms []entity.Room, err error)
-	GetByID(id int) (result entity.Room, err error)
-	Create(room entity.Room) (err error)
+	Fetch() (rooms []model.Room, err error)
+	GetByID(id int) (result model.Room, err error)
+	Create(room model.Room) (err error)
 }
 
 type UserRepository interface {
@@ -13,10 +13,10 @@ type UserRepository interface {
 }
 
 type MessageRepository interface {
-	Fetch() (result []entity.Message, err error)
-	GetByID(id int) (result entity.Message, err error)
-	GetByUserID(user_id int) (result entity.Message, err error)
-	GetByRoomID(room_id int) (result []entity.Message, err error)
-	Create(message *entity.Message) (err error)
-	StoreData(m *entity.Message) error
+	Fetch() (result []model.Message, err error)
+	GetByID(id int) (result model.Message, err error)
+	GetByUserID(user_id int) (result model.Message, err error)
+	GetByRoomID(room_id int) (result []model.Message, err error)
+	Create(message *model.Message) (err error)
+	StoreData(m *model.Message) error
 }

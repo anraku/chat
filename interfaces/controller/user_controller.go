@@ -10,7 +10,7 @@ import (
 )
 
 type UserController struct {
-	UserInteractor usecase.UserInputBoundary
+	UserInteractor usecase.UserUsecase
 }
 
 func (controller *UserController) LoginMenu(c interfaces.Context) error {

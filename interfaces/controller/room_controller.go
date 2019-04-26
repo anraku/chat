@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/anraku/chat/entity"
+	"github.com/anraku/chat/domain/model"
 	"github.com/anraku/chat/interfaces"
 	"github.com/anraku/chat/usecase"
 	"github.com/gorilla/websocket"
 )
 
 type RoomController struct {
-	RoomInteractor    usecase.RoomInputBoundary
-	MessageInteractor usecase.MessageInputBoundary
+	RoomInteractor    usecase.RoomUsecase
+	MessageInteractor usecase.MessageUsecase
 }
 
 const (
@@ -26,7 +26,7 @@ var (
 		ReadBufferSize:  socketBufferSize,
 		WriteBufferSize: messageBufferSize,
 	}
-	rooms = make(map[string]*entity.Room, 1000)
+	rooms = make(map[string]*model.Room, 1000)
 )
 
 // Index render list of chat room
@@ -77,7 +77,7 @@ func (controller *RoomController) EnterRoom(c interfaces.Context) error {
 
 // CreateRoom create new room
 func (controller *RoomController) CreateRoom(c interfaces.Context) error {
-	newRoom := entity.Room{
+	newRoom := model.Room{
 		Name:        c.FormValue("name"),
 		Description: c.FormValue("description"),
 	}
@@ -109,13 +109,13 @@ func (controller *RoomController) Chat(c interfaces.Context) error {
 	} else {
 		username = ""
 	}
-	user := &entity.User{
+	user := &model.User{
 		Name:   username,
 		Socket: ws,
-		Send:   make(chan *entity.Message, messageBufferSize),
+		Send:   make(chan *model.Message, messageBufferSize),
 	}
 
-	room := entity.GetRoom(roomID)
+	room := model.GetRoom(roomID)
 	controller.MessageInteractor.EnterRoom(user, room)
 	return nil
 }

@@ -23,7 +23,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-func NewRouter(ui usecase.UserInputBoundary, ri usecase.RoomInputBoundary, mi usecase.MessageInputBoundary) *echo.Echo {
+func NewRouter(ui usecase.UserUsecase, ri usecase.RoomUsecase, mi usecase.MessageUsecase) *echo.Echo {
 	// create user controller
 	userController := controller.UserController{
 		UserInteractor: ui,
