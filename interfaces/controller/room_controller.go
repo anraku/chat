@@ -6,9 +6,9 @@ import (
 	"strconv"
 
 	"github.com/anraku/chat/domain/model"
-	"github.com/anraku/chat/interfaces"
 	"github.com/anraku/chat/usecase"
 	"github.com/gorilla/websocket"
+	"github.com/labstack/echo"
 )
 
 type RoomController struct {
@@ -30,7 +30,7 @@ var (
 )
 
 // Index render list of chat room
-func (controller *RoomController) Index(c interfaces.Context) error {
+func (controller *RoomController) Index(c echo.Context) error {
 	rooms, err := controller.RoomInteractor.Fetch()
 	if err != nil {
 		return err
@@ -51,12 +51,12 @@ func (controller *RoomController) Index(c interfaces.Context) error {
 }
 
 // NewRoom render window to create new chat room
-func (controller *RoomController) NewRoom(c interfaces.Context) error {
+func (controller *RoomController) NewRoom(c echo.Context) error {
 	return c.Render(http.StatusOK, "new.html", nil)
 }
 
 // Room render chat window
-func (controller *RoomController) EnterRoom(c interfaces.Context) error {
+func (controller *RoomController) EnterRoom(c echo.Context) error {
 	req := c.Request()
 	uri := "ws://" + req.Host
 	roomID, err := strconv.Atoi(c.Param("id"))
@@ -76,7 +76,7 @@ func (controller *RoomController) EnterRoom(c interfaces.Context) error {
 }
 
 // CreateRoom create new room
-func (controller *RoomController) CreateRoom(c interfaces.Context) error {
+func (controller *RoomController) CreateRoom(c echo.Context) error {
 	newRoom := model.Room{
 		Name:        c.FormValue("name"),
 		Description: c.FormValue("description"),
@@ -90,7 +90,7 @@ func (controller *RoomController) CreateRoom(c interfaces.Context) error {
 }
 
 // Chat is Handler with WebSocket in chat room
-func (controller *RoomController) Chat(c interfaces.Context) error {
+func (controller *RoomController) Chat(c echo.Context) error {
 	// setting WebSocket
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
