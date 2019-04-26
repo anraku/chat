@@ -1,12 +1,10 @@
 package persistence
 
-import (
-	"github.com/anraku/chat/usecase"
-)
+import "github.com/anraku/chat/domain/repository"
 
 type UserSessionRepository struct{}
 
-func NewUserSessionRepository() usecase.UserRepository {
+func NewUserSessionRepository() repository.UserRepository {
 	return &UserSessionRepository{}
 }
 

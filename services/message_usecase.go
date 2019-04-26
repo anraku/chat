@@ -20,6 +20,6 @@ func NewMessageInteractor(m repository.MessageRepository) MessageUsecase {
 }
 
 func (mi *MessageInteractor) GetByRoomID(roomID int) (result []model.Message, err error) {
-	result, err = mi.mr.GetByRoomID(roomID)
+	result, err = mi.mr.GetMessagesByRoomID(roomID)
 	return
 }

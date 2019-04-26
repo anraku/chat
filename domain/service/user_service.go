@@ -8,27 +8,27 @@ import (
 )
 
 type UserService interface {
-	Read(user *model.User)
-	Write(user *model.User)
+	Read(*model.User)
+	Write(*model.User, repository.MessageRepository)
 }
 
 type userService struct {
-	mr repository.MessageRepository
 }
 
-func NewUserService(mr repository.MessageRepository) UserService {
-	return &userService{mr}
+func NewUserService() UserService {
+	return &userService{}
 }
 
-func (us *userService) Write(u *model.User) {
+func (us *userService) Write(u *model.User, mr repository.MessageRepository) {
 	for msg := range u.Send {
 		if err := u.Socket.WriteJSON(msg); err != nil {
 			break
 		}
+
 		msg.RoomID = u.Room.ID
 		msg.CreatedAt = time.Now()
 		//store message
-		err := us.mr.StoreData(msg)
+		err := mr.StoreData(msg)
 		if err != nil {
 			panic(err)
 		}

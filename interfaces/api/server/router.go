@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/anraku/chat/infrastructuer/api/controller"
+	"github.com/anraku/chat/interfaces/api/server/controller"
 	"github.com/anraku/chat/usecase"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"

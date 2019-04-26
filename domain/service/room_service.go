@@ -9,8 +9,6 @@ import (
 
 type RoomService interface {
 	GetRoom(id int) *model.Room
-	EnterRoom(*model.User, *model.Room)
-	GetByRoomID(int) ([]model.Message, error)
 }
 
 type roomService struct{}

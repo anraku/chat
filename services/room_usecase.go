@@ -3,25 +3,27 @@ package usecase
 import (
 	"github.com/anraku/chat/domain/model"
 	"github.com/anraku/chat/domain/repository"
+	"github.com/anraku/chat/domain/service"
 )
 
 type RoomUsecase interface {
 	Fetch() ([]model.Room, error)
 	Create(model.Room) error
-	GetMessage(int) ([]model.Message, error)
+	GetMessages(int) ([]model.Message, error)
 }
 
 type RoomInteractor struct {
 	us service.UserService
 	mr repository.MessageRepository
-	
-	rs service.RoomService
+
 	rr repository.RoomRepository
 }
 
-func NewRoomInteractor(rs RoomService) RoomUsecase {
+func NewRoomInteractor(us service.UserService, mr repository.MessageRepository, rr repository.RoomRepository) RoomUsecase {
 	return &RoomInteractor{
-		rs: rs,
+		us: us,
+		mr: mr,
+		rr: rr,
 	}
 }
 
@@ -31,7 +33,7 @@ func (ri *RoomInteractor) Fetch() (rooms []model.Room, err error) {
 }
 
 func (ri *RoomInteractor) GetMessages(roomID int) (result []model.Message, err error) {
-	result, err = mi.mr.GetMessagesByRoomID(roomID)
+	result, err = ri.mr.GetMessagesByRoomID(roomID)
 	return
 }
 
@@ -45,7 +47,6 @@ func (ri *RoomInteractor) EnterRoom(user *model.User, room *model.Room) {
 	user.Room = room
 	room.Join <- user
 	defer func() { room.Leave <- user }()
-	go ri.us.Write(user, mi.mr)
-	ri.us.Read(user, mi.mr)
+	go ri.us.Write(user, ri.mr)
+	ri.us.Read(user)
 }
-

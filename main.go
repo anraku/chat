@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/anraku/chat/domain/repository"
 	"github.com/anraku/chat/infrastructure/database/persistence"
+	"github.com/anraku/chat/interfaces/api/server/router"
 	"github.com/anraku/chat/usecase"
 )
 
