@@ -1,12 +1,12 @@
 package repository
 
 import (
-	"github.com/anraku/chat/usecase"
+	"github.com/anraku/chat/domain/repository"
 )
 
 type UserSessionRepository struct{}
 
-func NewUserSessionRepository() usecase.UserRepository {
+func NewUserSessionRepository() repository.UserRepository {
 	return &UserSessionRepository{}
 }
 

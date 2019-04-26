@@ -1,18 +1,20 @@
 package usecase
 
+import (
+	"github.com/anraku/chat/domain/repository"
+)
+
 type UserUsecase interface {
 	SaveUser(interface{}) error
 }
 
 type UserInteractor struct {
-	userRepository    UserRepository
-	messageRepository MessageRepository
+	userRepository repository.UserRepository
 }
 
-func NewUserInteractor(ur UserRepository, mr MessageRepository) UserUsecase {
+func NewUserInteractor(ur repository.UserRepository) UserUsecase {
 	return &UserInteractor{
-		userRepository:    ur,
-		messageRepository: mr,
+		userRepository: ur,
 	}
 }
 

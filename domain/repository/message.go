@@ -1,16 +1,6 @@
-package usecase
+package repository
 
 import "github.com/anraku/chat/domain/model"
-
-type RoomRepository interface {
-	Fetch() (rooms []model.Room, err error)
-	GetByID(id int) (result model.Room, err error)
-	Create(room model.Room) (err error)
-}
-
-type UserRepository interface {
-	Create(interface{}) error
-}
 
 type MessageRepository interface {
 	Fetch() (result []model.Message, err error)

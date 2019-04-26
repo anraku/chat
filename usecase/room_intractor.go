@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"github.com/anraku/chat/domain/model"
+	"github.com/anraku/chat/domain/repository"
 )
 
 type RoomUsecase interface {
@@ -10,11 +11,11 @@ type RoomUsecase interface {
 }
 
 type RoomInteractor struct {
-	roomRepository    RoomRepository
-	messageRepository MessageRepository
+	roomRepository    repository.RoomRepository
+	messageRepository repository.MessageRepository
 }
 
-func NewRoomInteractor(rr RoomRepository, mr MessageRepository) RoomUsecase {
+func NewRoomInteractor(rr repository.RoomRepository, mr repository.MessageRepository) RoomUsecase {
 	return &RoomInteractor{
 		roomRepository:    rr,
 		messageRepository: mr,

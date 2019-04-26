@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/anraku/chat/domain/model"
+	"github.com/anraku/chat/domain/repository"
 )
 
 type MessageUsecase interface {
@@ -12,11 +13,11 @@ type MessageUsecase interface {
 }
 
 type MessageInteractor struct {
-	roomRepository    RoomRepository
-	messageRepository MessageRepository
+	roomRepository    repository.RoomRepository
+	messageRepository repository.MessageRepository
 }
 
-func NewMessageInteractor(m MessageRepository) MessageUsecase {
+func NewMessageInteractor(m repository.MessageRepository) MessageUsecase {
 	return &MessageInteractor{
 		messageRepository: m,
 	}

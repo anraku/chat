@@ -18,7 +18,7 @@ func main() {
 	roomRepo := repository.NewRoomRepository(db)
 	messageRepo := repository.NewMessageRepository(db)
 
-	userInteractor := usecase.NewUserInteractor(userRepo, messageRepo)
+	userInteractor := usecase.NewUserInteractor(userRepo)
 	roomInteractor := usecase.NewRoomInteractor(roomRepo, messageRepo)
 	messageInteractor := usecase.NewMessageInteractor(messageRepo)
 
