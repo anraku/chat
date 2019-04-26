@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/anraku/chat/infrastructure"
 	"github.com/anraku/chat/infrastructure/datastore"
+	"github.com/anraku/chat/infrastructure/router"
 	"github.com/anraku/chat/usecase"
 )
 
@@ -22,6 +22,6 @@ func main() {
 	roomInteractor := usecase.NewRoomInteractor(roomRepo, messageRepo)
 	messageInteractor := usecase.NewMessageInteractor(messageRepo)
 
-	app := infrastructure.NewRouter(userInteractor, roomInteractor, messageInteractor)
+	app := router.NewRouter(userInteractor, roomInteractor, messageInteractor)
 	app.Start(":8080")
 }
