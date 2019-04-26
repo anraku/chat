@@ -11,16 +11,16 @@ type MessageUsecase interface {
 	GetByRoomID(int) ([]model.Message, error)
 }
 
-type MessageInteractor struct {
+type messageUsecase struct {
 	s  service.MessageService
 	mr repository.MessageRepository
 }
 
-func NewMessageInteractor(s service.MessageService, mr repository.MessageRepository) MessageUsecase {
-	return &MessageInteractor{s, mr}
+func NewMessageUsecase(s service.MessageService, mr repository.MessageRepository) MessageUsecase {
+	return &messageUsecase{s, mr}
 }
 
-func (i *MessageInteractor) EnterRoom(user *model.User, room *model.Room) {
+func (i *messageUsecase) EnterRoom(user *model.User, room *model.Room) {
 	// user join Room
 	user.Room = room
 	room.Join <- user
@@ -29,6 +29,6 @@ func (i *MessageInteractor) EnterRoom(user *model.User, room *model.Room) {
 	i.s.Read(user)
 }
 
-func (i *MessageInteractor) GetByRoomID(roomID int) (result []model.Message, err error) {
+func (i *messageUsecase) GetByRoomID(roomID int) (result []model.Message, err error) {
 	return i.mr.GetByRoomID(roomID)
 }

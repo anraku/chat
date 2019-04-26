@@ -16,14 +16,14 @@ func main() {
 	defer db.Close()
 
 	userRepo := datastore.NewUserSessionRepository()
-	roomRepo := datastore.NewRoomRepository(db)
-	messageRepo := datastore.NewMessageRepository(db)
+	roomRepo := datastore.NewRoomMySQLRepository(db)
+	messageRepo := datastore.NewMessageMySQLRepository(db)
 
 	messageService := service.NewMessageService(messageRepo)
 
-	userInteractor := usecase.NewUserInteractor(userRepo)
-	roomInteractor := usecase.NewRoomInteractor(roomRepo, messageRepo)
-	messageInteractor := usecase.NewMessageInteractor(messageService, messageRepo)
+	userInteractor := usecase.NewUserUsecase(userRepo)
+	roomInteractor := usecase.NewRoomUsecase(roomRepo)
+	messageInteractor := usecase.NewMessageUsecase(messageService, messageRepo)
 
 	app := router.NewRouter(userInteractor, roomInteractor, messageInteractor)
 	app.Start(":8080")
