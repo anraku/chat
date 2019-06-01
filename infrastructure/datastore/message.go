@@ -17,27 +17,27 @@ func NewMessageMySQLRepository(db *gorm.DB) repository.MessageRepository {
 }
 
 func (mr *MessageMySQLRepository) Fetch() (result []model.Message, err error) {
-	err = mr.DB.Debug().Table("messages").Find(&result).Error
+	err = mr.DB.Table("messages").Find(&result).Error
 	return
 }
 
 func (mr *MessageMySQLRepository) GetByID(id int) (result model.Message, err error) {
-	err = mr.DB.Debug().Table("messages").Where("id = ?", id).First(&result).Error
+	err = mr.DB.Table("messages").Where("id = ?", id).First(&result).Error
 	return
 }
 
 func (mr *MessageMySQLRepository) GetByUserID(user_id int) (result model.Message, err error) {
-	err = mr.DB.Debug().Table("messages").Where("user_id = ?", user_id).First(&result).Error
+	err = mr.DB.Table("messages").Where("user_id = ?", user_id).First(&result).Error
 	return
 }
 
 func (mr *MessageMySQLRepository) GetByRoomID(room_id int) (result []model.Message, err error) {
-	err = mr.DB.Debug().Table("messages").Where("room_id = ?", room_id).Find(&result).Error
+	err = mr.DB.Table("messages").Where("room_id = ?", room_id).Find(&result).Error
 	return
 }
 
 func (mr *MessageMySQLRepository) Create(message *model.Message) (err error) {
-	err = mr.DB.Debug().Table("messages").Create(message).Error
+	err = mr.DB.Table("messages").Create(message).Error
 	return
 }
 
