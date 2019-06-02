@@ -1,0 +1,21 @@
+version: '3'
+services:
+  api:
+    tty: true
+    build: .
+    image: anraku/chat:production
+    depends_on:
+      - db
+    env_file: api.env.production.yml 
+    networks:
+      - datastore
+  db:
+    build: infra/mysql
+    env_file: mysql.env.production.yml 
+    volumes:
+      - ./infra/mysql/sql:/docker-entrypoint-initdb.d
+    networks: 
+      - datastore
+
+networks:
+    datastore:
